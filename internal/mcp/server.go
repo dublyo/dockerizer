@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sync"
 
 	"github.com/dublyo/dockerizer/internal/detector"
 	"github.com/dublyo/dockerizer/internal/generator"
@@ -20,7 +19,6 @@ type Server struct {
 	registry  *detector.Registry
 	generator generator.Generator
 	scanner   scanner.Scanner
-	mu        sync.RWMutex
 }
 
 // NewServer creates a new MCP server
@@ -87,7 +85,7 @@ func (s *Server) Run(ctx context.Context) error {
 		// Handle message
 		response := s.handleMessage(ctx, &msg)
 		if response != nil {
-			encoder.Encode(response)
+			_ = encoder.Encode(response)
 		}
 	}
 }
@@ -431,5 +429,5 @@ func (s *Server) errorResponse(id interface{}, code int, message string, data in
 }
 
 func (s *Server) sendError(encoder *json.Encoder, id interface{}, code int, message string, data interface{}) {
-	encoder.Encode(s.errorResponse(id, code, message, data))
+	_ = encoder.Encode(s.errorResponse(id, code, message, data))
 }

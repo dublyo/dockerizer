@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -370,18 +369,4 @@ func saveConfig(provider ai.Provider) {
 	}
 
 	fmt.Printf("  Config saved to %s\n", configPath)
-}
-
-// Port selection helper for interactive mode
-func selectPort(reader *bufio.Reader, defaultPort int) int {
-	fmt.Printf("  Application port [%d]: ", defaultPort)
-	portStr := readLine(reader)
-	if portStr == "" {
-		return defaultPort
-	}
-	port, err := strconv.Atoi(portStr)
-	if err != nil {
-		return defaultPort
-	}
-	return port
 }

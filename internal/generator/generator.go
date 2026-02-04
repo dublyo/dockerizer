@@ -316,7 +316,12 @@ func (g *generator) executeTemplate(tmplContent string, vars map[string]interfac
 		},
 		"lower": strings.ToLower,
 		"upper": strings.ToUpper,
-		"title": strings.Title,
+		"title": func(s string) string {
+			if len(s) == 0 {
+				return s
+			}
+			return strings.ToUpper(s[:1]) + s[1:]
+		},
 	}
 
 	tmpl, err := template.New("template").Funcs(funcMap).Parse(tmplContent)

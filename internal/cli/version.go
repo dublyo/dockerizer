@@ -36,7 +36,7 @@ func runVersion(cmd *cobra.Command, args []string) {
 		}
 		enc := json.NewEncoder(os.Stdout)
 		enc.SetIndent("", "  ")
-		enc.Encode(output)
+		_ = enc.Encode(output)
 		return
 	}
 

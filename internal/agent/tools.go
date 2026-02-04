@@ -185,18 +185,18 @@ func (t *DockerRunTool) Execute(ctx context.Context, args map[string]interface{}
 			var logsOut bytes.Buffer
 			logsCmd.Stdout = &logsOut
 			logsCmd.Stderr = &logsOut
-			logsCmd.Run()
+			_ = logsCmd.Run()
 
 			// Cleanup
-			exec.CommandContext(ctx, "docker", "rm", "-f", containerName).Run()
+			_ = exec.CommandContext(ctx, "docker", "rm", "-f", containerName).Run()
 
 			return logsOut.String(), fmt.Errorf("container exited with status: %s", status)
 		}
 	}
 
 	// Container is running, clean up
-	exec.CommandContext(ctx, "docker", "stop", containerName).Run()
-	exec.CommandContext(ctx, "docker", "rm", containerName).Run()
+	_ = exec.CommandContext(ctx, "docker", "stop", containerName).Run()
+	_ = exec.CommandContext(ctx, "docker", "rm", containerName).Run()
 
 	return "Container started and ran successfully", nil
 }
