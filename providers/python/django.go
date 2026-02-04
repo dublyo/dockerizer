@@ -136,12 +136,6 @@ func hasDjangoInRequirements(scan *scanner.ScanResult) bool {
 	return false
 }
 
-func hasWSGIorASGI(scan *scanner.ScanResult) bool {
-	wsgiFiles := scan.FileTree.FilesMatching("wsgi.py")
-	asgiFiles := scan.FileTree.FilesMatching("asgi.py")
-	return len(wsgiFiles) > 0 || len(asgiFiles) > 0
-}
-
 func detectPythonPackageManager(scan *scanner.ScanResult) string {
 	if scan.FileTree.HasFile("poetry.lock") {
 		return "poetry"
