@@ -3,7 +3,6 @@ package php
 import (
 	"context"
 	"encoding/json"
-	"strings"
 
 	"github.com/dublyo/dockerizer/internal/scanner"
 	"github.com/dublyo/dockerizer/providers"
@@ -153,41 +152,4 @@ func (p *SymfonyProvider) DetectVersion(scan *scanner.ScanResult) string {
 	}
 
 	return detectPhpVersion(scan, require)
-}
-
-// detectPhpVersion is defined in laravel.go, but we include here for independence
-func detectSymfonyPhpVersion(scan *scanner.ScanResult, require map[string]interface{}) string {
-	// Check composer.json require.php
-	if phpVersion, ok := require["php"].(string); ok {
-		return parseSymfonyPhpVersion(phpVersion)
-	}
-
-	// Check .php-version file
-	if scan.FileTree.HasFile(".php-version") {
-		data, err := scan.ReadFile(".php-version")
-		if err == nil {
-			return strings.TrimSpace(string(data))
-		}
-	}
-
-	return "8.3"
-}
-
-// parseSymfonyPhpVersion extracts PHP version from constraint
-func parseSymfonyPhpVersion(constraint string) string {
-	// Handle common version constraints
-	constraint = strings.TrimPrefix(constraint, "^")
-	constraint = strings.TrimPrefix(constraint, ">=")
-	constraint = strings.TrimPrefix(constraint, "~")
-
-	// Extract major.minor
-	parts := strings.Split(constraint, ".")
-	if len(parts) >= 2 {
-		return parts[0] + "." + parts[1]
-	}
-	if len(parts) == 1 {
-		return parts[0]
-	}
-
-	return "8.3"
 }
