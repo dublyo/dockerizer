@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Configuration - Dockerizer</title>
+    <meta name="description" content="Configure AI providers for Dockerizer. Set up OpenAI, Anthropic Claude, or Ollama for intelligent Docker configuration generation.">
+    <meta name="keywords" content="dockerizer ai, dockerfile ai, openai docker, claude docker, ollama docker, ai dockerfile generator">
+    <link rel="canonical" href="https://dockerizer.dev/ai-config.html">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .provider-card {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .provider-card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .provider-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(88, 166, 255, 0.2);
+            color: var(--accent);
+        }
+        .provider-badge.recommended {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--success);
+        }
+        .model-table {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Dockerizer</a>
+            <ul class="nav-links">
+                <li><a href="/docs.html">Docs</a></li>
+                <li><a href="/frameworks.html">Frameworks</a></li>
+                <li><a href="/cli.html">CLI Reference</a></li>
+                <li><a href="/examples.html">Examples</a></li>
+                <li><a href="/ai-config.html" class="active">AI Config</a></li>
+                <li><a href="https://github.com/dublyo/dockerizer">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumb">
+            <a href="/">Home</a> / AI Configuration
+        </div>
+
+        <h1>AI Configuration</h1>
+        <p>Dockerizer can use AI to generate Docker configurations when automatic detection fails or for unsupported frameworks. This page explains how to configure different AI providers.</p>
+
+        <h2>When Is AI Used?</h2>
+        <p>AI generation is triggered in these scenarios:</p>
+        <ul>
+            <li><strong>Low confidence detection</strong> - When framework detection confidence is below 70%</li>
+            <li><strong>Unknown frameworks</strong> - Languages or frameworks without built-in templates</li>
+            <li><strong>Forced AI mode</strong> - When using the <code>--ai</code> flag</li>
+            <li><strong>Complex setups</strong> - Monorepos or multi-service architectures</li>
+        </ul>
+
+        <h2>Supported Providers</h2>
+
+        <div class="provider-card">
+            <h3>Anthropic Claude <span class="provider-badge recommended">Recommended</span></h3>
+            <p>Claude models provide excellent Docker configuration generation with deep understanding of containerization best practices.</p>
+
+            <h4>Setup</h4>
+            <pre><code>export ANTHROPIC_API_KEY="sk-ant-api03-..."</code></pre>
+
+            <h4>Usage</h4>
+            <pre><code># Use Claude (default model)
+dockerizer --ai --ai-provider anthropic
+
+# Specify model
+dockerizer --ai --ai-provider anthropic --ai-model claude-sonnet-4-20250514</code></pre>
+
+            <table class="model-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>claude-sonnet-4-20250514</code></td>
+                        <td>Balanced speed and quality (default)</td>
+                    </tr>
+                    <tr>
+                        <td><code>claude-opus-4-20250514</code></td>
+                        <td>Complex configurations, best quality</td>
+                    </tr>
+                    <tr>
+                        <td><code>claude-haiku-3-20250514</code></td>
+                        <td>Fast generation, simple projects</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="provider-card">
+            <h3>OpenAI GPT</h3>
+            <p>OpenAI models are widely used and provide reliable Docker configuration generation.</p>
+
+            <h4>Setup</h4>
+            <pre><code>export OPENAI_API_KEY="sk-proj-..."</code></pre>
+
+            <h4>Usage</h4>
+            <pre><code># Use OpenAI (default model)
+dockerizer --ai --ai-provider openai
+
+# Specify model
+dockerizer --ai --ai-provider openai --ai-model gpt-4o</code></pre>
+
+            <table class="model-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>gpt-4o</code></td>
+                        <td>Best quality, multimodal (default)</td>
+                    </tr>
+                    <tr>
+                        <td><code>gpt-4o-mini</code></td>
+                        <td>Faster, cost-effective</td>
+                    </tr>
+                    <tr>
+                        <td><code>o1</code></td>
+                        <td>Advanced reasoning for complex setups</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="provider-card">
+            <h3>Ollama <span class="provider-badge">Local</span></h3>
+            <p>Run AI locally without sending code to external services. Great for privacy-sensitive projects.</p>
+
+            <h4>Setup</h4>
+            <pre><code># Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull a model
+ollama pull llama3.2
+
+# Ollama runs on localhost by default
+# Optional: set custom host
+export OLLAMA_HOST="http://localhost:11434"</code></pre>
+
+            <h4>Usage</h4>
+            <pre><code># Use Ollama with default model
+dockerizer --ai --ai-provider ollama
+
+# Specify model
+dockerizer --ai --ai-provider ollama --ai-model codellama</code></pre>
+
+            <table class="model-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>llama3.2</code></td>
+                        <td>General purpose (default)</td>
+                    </tr>
+                    <tr>
+                        <td><code>codellama</code></td>
+                        <td>Code-focused tasks</td>
+                    </tr>
+                    <tr>
+                        <td><code>deepseek-coder</code></td>
+                        <td>Specialized coding model</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Environment Variables</h2>
+
+        <p>Configure AI settings via environment variables:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>ANTHROPIC_API_KEY</code></td>
+                    <td>Anthropic API key</td>
+                    <td><code>sk-ant-api03-...</code></td>
+                </tr>
+                <tr>
+                    <td><code>OPENAI_API_KEY</code></td>
+                    <td>OpenAI API key</td>
+                    <td><code>sk-proj-...</code></td>
+                </tr>
+                <tr>
+                    <td><code>OLLAMA_HOST</code></td>
+                    <td>Ollama server URL</td>
+                    <td><code>http://localhost:11434</code></td>
+                </tr>
+                <tr>
+                    <td><code>DOCKERIZER_AI_PROVIDER</code></td>
+                    <td>Default provider</td>
+                    <td><code>anthropic</code></td>
+                </tr>
+                <tr>
+                    <td><code>DOCKERIZER_AI_MODEL</code></td>
+                    <td>Default model</td>
+                    <td><code>claude-sonnet-4-20250514</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Configuration File</h2>
+
+        <p>Create a <code>.dockerizer.yml</code> in your home directory or project root:</p>
+
+        <pre><code># ~/.dockerizer.yml
+ai:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+
+# Or for OpenAI
+ai:
+  provider: openai
+  model: gpt-4o
+
+# Or for local Ollama
+ai:
+  provider: ollama
+  host: http://localhost:11434
+  model: llama3.2</code></pre>
+
+        <h2>Provider Priority</h2>
+
+        <p>Dockerizer checks for AI providers in this order:</p>
+        <ol>
+            <li>Command-line flags (<code>--ai-provider</code>)</li>
+            <li>Environment variable (<code>DOCKERIZER_AI_PROVIDER</code>)</li>
+            <li>Configuration file (<code>.dockerizer.yml</code>)</li>
+            <li>Auto-detect based on available API keys</li>
+        </ol>
+
+        <h2>Best Practices</h2>
+
+        <div class="alert alert-info">
+            <strong>Security Tip:</strong> Never commit API keys to version control. Use environment variables or a <code>.env</code> file (added to <code>.gitignore</code>).
+        </div>
+
+        <ul>
+            <li><strong>Start with detection</strong> - Let Dockerizer try automatic detection first. Only use AI when needed.</li>
+            <li><strong>Review generated configs</strong> - Always review AI-generated Dockerfiles before using in production.</li>
+            <li><strong>Use local models for sensitive code</strong> - If your code is proprietary, consider Ollama for local processing.</li>
+            <li><strong>Set defaults</strong> - Configure your preferred provider in <code>~/.dockerizer.yml</code> to avoid repeated flags.</li>
+        </ul>
+
+        <h2>Troubleshooting</h2>
+
+        <h3>API Key Issues</h3>
+        <pre><code># Verify API key is set
+echo $ANTHROPIC_API_KEY
+echo $OPENAI_API_KEY
+
+# Test with verbose output
+dockerizer --ai --verbose</code></pre>
+
+        <h3>Ollama Connection Issues</h3>
+        <pre><code># Check if Ollama is running
+curl http://localhost:11434/api/tags
+
+# Restart Ollama
+ollama serve</code></pre>
+
+        <h3>Model Not Found</h3>
+        <pre><code># List available Ollama models
+ollama list
+
+# Pull missing model
+ollama pull llama3.2</code></pre>
+    </main>
+
+    <footer>
+        <p>Made by <a href="https://dublyo.com">Dublyo</a></p>
+    </footer>
+</body>
+</html>

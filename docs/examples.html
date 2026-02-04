@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - Dockerizer</title>
+    <meta name="description" content="Real-world examples of using Dockerizer to generate Docker configurations for Next.js, Django, FastAPI, Go, and Rust projects.">
+    <meta name="keywords" content="dockerizer examples, dockerfile examples, docker nextjs example, docker django example, docker fastapi example">
+    <link rel="canonical" href="https://dockerizer.dev/examples.html">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+    <style>
+        .example-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .example-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0;
+        }
+        .example-section h3 i {
+            font-size: 1.75rem;
+        }
+        .example-section pre {
+            margin: 1rem 0;
+        }
+        .file-label {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+            margin-bottom: 0.25rem;
+            font-family: 'SF Mono', Consolas, monospace;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Dockerizer</a>
+            <ul class="nav-links">
+                <li><a href="/docs.html">Docs</a></li>
+                <li><a href="/frameworks.html">Frameworks</a></li>
+                <li><a href="/cli.html">CLI Reference</a></li>
+                <li><a href="/examples.html" class="active">Examples</a></li>
+                <li><a href="/ai-config.html">AI Config</a></li>
+                <li><a href="https://github.com/dublyo/dockerizer">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumb">
+            <a href="/">Home</a> / Examples
+        </div>
+
+        <h1>Examples</h1>
+        <p>Real-world examples showing Dockerizer in action with different frameworks and configurations.</p>
+
+        <h2>Quick Examples</h2>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3>Basic Generation</h3>
+                <pre><code>cd my-project
+dockerizer</code></pre>
+            </div>
+            <div class="card">
+                <h3>Preview First</h3>
+                <pre><code>dockerizer plan
+# Review output
+dockerizer</code></pre>
+            </div>
+            <div class="card">
+                <h3>Force AI</h3>
+                <pre><code>export OPENAI_API_KEY="sk-..."
+dockerizer --ai</code></pre>
+            </div>
+            <div class="card">
+                <h3>CI/CD Pipeline</h3>
+                <pre><code>dockerizer --force --quiet
+docker build -t app .</code></pre>
+            </div>
+        </div>
+
+        <section class="example-section" id="nextjs">
+            <h3><i class="devicon-nextjs-plain"></i> Next.js Application</h3>
+            <p>Dockerizer automatically detects Next.js projects and generates optimized configurations with standalone output.</p>
+
+            <div class="file-label">Command</div>
+            <pre><code>cd my-nextjs-app
+dockerizer</code></pre>
+
+            <div class="file-label">Detection Output</div>
+            <pre><code>Scanning project...
+Detected: Next.js (confidence: 95%)
+  - Node version: 20
+  - Package manager: npm
+  - TypeScript: yes
+  - Output mode: standalone
+
+Generating files...
+  ✓ Dockerfile
+  ✓ docker-compose.yml
+  ✓ .dockerignore
+
+Done!</code></pre>
+
+            <div class="file-label">Generated Dockerfile</div>
+            <pre><code>FROM node:20-alpine AS base
+
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+EXPOSE 3000
+ENV PORT=3000
+
+CMD ["node", "server.js"]</code></pre>
+        </section>
+
+        <section class="example-section" id="fastapi">
+            <h3><i class="devicon-fastapi-plain colored"></i> FastAPI Application</h3>
+            <p>FastAPI projects are detected with uvicorn as the ASGI server.</p>
+
+            <div class="file-label">Command</div>
+            <pre><code>cd my-fastapi-app
+dockerizer</code></pre>
+
+            <div class="file-label">Detection Output</div>
+            <pre><code>Scanning project...
+Detected: FastAPI (confidence: 90%)
+  - Python version: 3.12
+  - Package manager: pip
+  - Main file: main.py
+  - ASGI server: uvicorn
+
+Generating files...
+  ✓ Dockerfile
+  ✓ docker-compose.yml
+  ✓ .dockerignore
+
+Done!</code></pre>
+
+            <div class="file-label">Generated Dockerfile</div>
+            <pre><code>FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim AS runner
+
+WORKDIR /app
+
+RUN useradd --create-home --shell /bin/bash appuser
+
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY . .
+
+RUN chown -R appuser:appuser /app
+USER appuser
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1</code></pre>
+        </section>
+
+        <section class="example-section" id="gin">
+            <h3><i class="devicon-go-plain colored"></i> Gin (Go) Application</h3>
+            <p>Go projects are compiled to static binaries for minimal final images.</p>
+
+            <div class="file-label">Command</div>
+            <pre><code>cd my-gin-app
+dockerizer</code></pre>
+
+            <div class="file-label">Generated Dockerfile</div>
+            <pre><code>FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+RUN apk add --no-cache git ca-certificates
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/server .
+
+FROM alpine:latest
+
+WORKDIR /app
+
+RUN apk --no-cache add ca-certificates
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=builder /app/server /app/server
+
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+EXPOSE 8080
+
+CMD ["/app/server"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1</code></pre>
+        </section>
+
+        <section class="example-section" id="django">
+            <h3><i class="devicon-django-plain"></i> Django Application</h3>
+            <p>Django projects include static file collection and Gunicorn WSGI server.</p>
+
+            <div class="file-label">Command</div>
+            <pre><code>cd my-django-app
+dockerizer</code></pre>
+
+            <div class="file-label">Generated docker-compose.yml</div>
+            <pre><code>version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=0
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/app
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:</code></pre>
+        </section>
+
+        <h2>Advanced Examples</h2>
+
+        <h3>Custom Output Directory</h3>
+        <pre><code># Generate files in a specific directory
+dockerizer --output ./docker
+
+# Results in:
+# ./docker/Dockerfile
+# ./docker/docker-compose.yml
+# ./docker/.dockerignore</code></pre>
+
+        <h3>AI-Powered Generation</h3>
+        <pre><code># When detection confidence is low or for unknown frameworks
+export ANTHROPIC_API_KEY="sk-ant-..."
+dockerizer --ai --ai-provider anthropic
+
+# Or with OpenAI
+export OPENAI_API_KEY="sk-..."
+dockerizer --ai --ai-provider openai --ai-model gpt-4</code></pre>
+
+        <h3>CI/CD Integration</h3>
+        <pre><code># GitHub Actions example
+- name: Generate Dockerfile
+  run: |
+    curl -fsSL https://dockerizer.dev/install.sh | sh
+    dockerizer --force --quiet
+
+- name: Build and Push
+  run: |
+    docker build -t myapp:${{ github.sha }} .
+    docker push myapp:${{ github.sha }}</code></pre>
+
+        <h3>Monorepo Setup</h3>
+        <pre><code># Generate for specific service in monorepo
+dockerizer ./services/api
+dockerizer ./services/web
+dockerizer ./services/worker</code></pre>
+
+        <div class="alert alert-info">
+            <strong>Need help?</strong> Check the <a href="/cli.html">CLI Reference</a> for all available options or <a href="/ai-config.html">AI Configuration</a> for setting up AI providers.
+        </div>
+    </main>
+
+    <footer>
+        <p>Made by <a href="https://dublyo.com">Dublyo</a></p>
+    </footer>
+</body>
+</html>

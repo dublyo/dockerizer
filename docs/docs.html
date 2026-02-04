@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - Dockerizer Documentation</title>
+    <meta name="description" content="Learn how to install and use Dockerizer to generate Docker configurations for your projects. Step-by-step guide for beginners.">
+    <meta name="keywords" content="dockerizer tutorial, docker setup, dockerfile generator guide, containerization tutorial">
+    <link rel="canonical" href="https://dockerizer.dev/docs.html">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Dockerizer</a>
+            <ul class="nav-links">
+                <li><a href="/docs.html" class="active">Docs</a></li>
+                <li><a href="/frameworks.html">Frameworks</a></li>
+                <li><a href="/cli.html">CLI Reference</a></li>
+                <li><a href="/examples.html">Examples</a></li>
+                <li><a href="/ai-config.html">AI Config</a></li>
+                <li><a href="https://github.com/dublyo/dockerizer">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumb">
+            <a href="/">Home</a> / Documentation
+        </div>
+
+        <h1>Getting Started</h1>
+        <p>Dockerizer is a CLI tool that automatically generates production-ready Docker configurations for your projects. It analyzes your codebase, detects the framework and language, and creates optimized Dockerfiles.</p>
+
+        <h2>Installation</h2>
+
+        <h3>Quick Install (Recommended)</h3>
+        <p>Run the install script to download the latest version:</p>
+        <pre><code>curl -fsSL https://dockerizer.dev/install.sh | sh</code></pre>
+
+        <h3>Using npm</h3>
+        <p>Install globally via npm:</p>
+        <pre><code>npm install -g @dublyo/dockerizer</code></pre>
+
+        <h3>Using Go</h3>
+        <p>Install directly with Go:</p>
+        <pre><code>go install github.com/dublyo/dockerizer@latest</code></pre>
+
+        <h3>Manual Download</h3>
+        <p>Download pre-built binaries from the <a href="https://github.com/dublyo/dockerizer/releases">GitHub Releases</a> page.</p>
+
+        <h2>Quick Start</h2>
+
+        <h3>Step 1: Navigate to Your Project</h3>
+        <pre><code>cd /path/to/your/project</code></pre>
+
+        <h3>Step 2: Run Dockerizer</h3>
+        <pre><code>dockerizer</code></pre>
+        <p>Dockerizer will analyze your project and generate:</p>
+        <ul>
+            <li><code>Dockerfile</code> - Multi-stage production build</li>
+            <li><code>docker-compose.yml</code> - Container orchestration</li>
+            <li><code>.dockerignore</code> - Optimized ignore patterns</li>
+        </ul>
+
+        <h3>Step 3: Build and Run</h3>
+        <pre><code># Build the image
+docker build -t myapp .
+
+# Or use docker-compose
+docker-compose up --build</code></pre>
+
+        <h2>How It Works</h2>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3>1. Scan</h3>
+                <p>Dockerizer scans your project files including package.json, requirements.txt, go.mod, Cargo.toml, and source files.</p>
+            </div>
+            <div class="card">
+                <h3>2. Detect</h3>
+                <p>Using pattern matching, it identifies your language, framework, and version with confidence scoring.</p>
+            </div>
+            <div class="card">
+                <h3>3. Generate</h3>
+                <p>Based on detection results, it generates optimized Docker configurations using battle-tested templates.</p>
+            </div>
+        </div>
+
+        <h2>Detection Confidence</h2>
+        <p>Dockerizer uses a confidence scoring system:</p>
+        <ul>
+            <li><strong>90-100%</strong> - High confidence, generates immediately</li>
+            <li><strong>70-89%</strong> - Good confidence, may prompt for confirmation</li>
+            <li><strong>Below 70%</strong> - Low confidence, uses AI fallback if configured</li>
+        </ul>
+
+        <div class="alert alert-info">
+            <strong>Tip:</strong> Configure an AI provider (OpenAI, Anthropic, or Ollama) for better results with uncommon tech stacks. See <a href="/ai-config.html">AI Configuration</a>.
+        </div>
+
+        <h2>Generated Dockerfile Features</h2>
+        <p>All generated Dockerfiles include production best practices:</p>
+        <ul>
+            <li><strong>Multi-stage builds</strong> - Smaller final images</li>
+            <li><strong>Non-root user</strong> - Enhanced security</li>
+            <li><strong>Health checks</strong> - Container monitoring</li>
+            <li><strong>Optimized layers</strong> - Better caching</li>
+            <li><strong>Minimal base images</strong> - Alpine or slim variants</li>
+        </ul>
+
+        <h2>Next Steps</h2>
+        <ul>
+            <li><a href="/frameworks.html">Supported Frameworks</a> - See all supported languages and frameworks</li>
+            <li><a href="/cli.html">CLI Reference</a> - Learn all available commands and flags</li>
+            <li><a href="/examples.html">Examples</a> - Real-world usage examples</li>
+            <li><a href="/ai-config.html">AI Configuration</a> - Set up AI fallback</li>
+        </ul>
+    </main>
+
+    <footer>
+        <p>Made by <a href="https://dublyo.com">Dublyo</a></p>
+    </footer>
+</body>
+</html>

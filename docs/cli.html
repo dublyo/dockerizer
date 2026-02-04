@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLI Reference - Dockerizer</title>
+    <meta name="description" content="Complete CLI reference for Dockerizer. Learn all commands, flags, and options for generating Docker configurations.">
+    <meta name="keywords" content="dockerizer cli, dockerizer commands, dockerfile generator cli, docker cli tool">
+    <link rel="canonical" href="https://dockerizer.dev/cli.html">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Dockerizer</a>
+            <ul class="nav-links">
+                <li><a href="/docs.html">Docs</a></li>
+                <li><a href="/frameworks.html">Frameworks</a></li>
+                <li><a href="/cli.html" class="active">CLI Reference</a></li>
+                <li><a href="/examples.html">Examples</a></li>
+                <li><a href="/ai-config.html">AI Config</a></li>
+                <li><a href="https://github.com/dublyo/dockerizer">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumb">
+            <a href="/">Home</a> / CLI Reference
+        </div>
+
+        <h1>CLI Reference</h1>
+        <p>Complete reference for all Dockerizer commands, flags, and options.</p>
+
+        <h2>Commands</h2>
+
+        <h3><code>dockerizer</code></h3>
+        <p>The default command. Analyzes the current directory and generates Docker configurations.</p>
+        <pre><code>dockerizer [path] [flags]</code></pre>
+        <table>
+            <thead>
+                <tr>
+                    <th>Argument</th>
+                    <th>Description</th>
+                    <th>Default</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>path</code></td>
+                    <td>Path to the project directory</td>
+                    <td>Current directory (<code>.</code>)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3><code>dockerizer init</code></h3>
+        <p>Interactive setup wizard. Guides you through configuration with prompts.</p>
+        <pre><code>dockerizer init [path]</code></pre>
+        <p>The wizard will ask about:</p>
+        <ul>
+            <li>Project type and framework</li>
+            <li>Port configuration</li>
+            <li>Environment variables</li>
+            <li>Health check endpoints</li>
+            <li>Docker Compose services</li>
+        </ul>
+
+        <h3><code>dockerizer plan</code></h3>
+        <p>Preview the generated configuration without writing files.</p>
+        <pre><code>dockerizer plan [path]</code></pre>
+        <p>Useful for reviewing what will be generated before committing.</p>
+
+        <h3><code>dockerizer detect</code></h3>
+        <p>Only run detection without generating files. Shows detected framework and confidence.</p>
+        <pre><code>dockerizer detect [path]</code></pre>
+
+        <h3><code>dockerizer version</code></h3>
+        <p>Display version information.</p>
+        <pre><code>dockerizer version [--json]</code></pre>
+
+        <h2>Global Flags</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Flag</th>
+                    <th>Short</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--help</code></td>
+                    <td><code>-h</code></td>
+                    <td>Show help for any command</td>
+                </tr>
+                <tr>
+                    <td><code>--verbose</code></td>
+                    <td><code>-v</code></td>
+                    <td>Enable verbose output</td>
+                </tr>
+                <tr>
+                    <td><code>--quiet</code></td>
+                    <td><code>-q</code></td>
+                    <td>Suppress non-essential output</td>
+                </tr>
+                <tr>
+                    <td><code>--force</code></td>
+                    <td><code>-f</code></td>
+                    <td>Overwrite existing files without prompting</td>
+                </tr>
+                <tr>
+                    <td><code>--no-compose</code></td>
+                    <td></td>
+                    <td>Skip docker-compose.yml generation</td>
+                </tr>
+                <tr>
+                    <td><code>--no-ignore</code></td>
+                    <td></td>
+                    <td>Skip .dockerignore generation</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>AI Flags</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Flag</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--ai</code></td>
+                    <td>Force AI generation regardless of detection confidence</td>
+                </tr>
+                <tr>
+                    <td><code>--ai-provider</code></td>
+                    <td>AI provider to use: <code>openai</code>, <code>anthropic</code>, <code>ollama</code></td>
+                </tr>
+                <tr>
+                    <td><code>--ai-model</code></td>
+                    <td>Specific model to use (e.g., <code>gpt-4</code>, <code>claude-3-sonnet</code>)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Output Flags</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Flag</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--output</code>, <code>-o</code></td>
+                    <td>Output directory for generated files</td>
+                </tr>
+                <tr>
+                    <td><code>--stdout</code></td>
+                    <td>Print Dockerfile to stdout instead of writing to file</td>
+                </tr>
+                <tr>
+                    <td><code>--json</code></td>
+                    <td>Output results in JSON format</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Environment Variables</h2>
+
+        <p>Configure Dockerizer using environment variables:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>OPENAI_API_KEY</code></td>
+                    <td>OpenAI API key for AI generation</td>
+                </tr>
+                <tr>
+                    <td><code>ANTHROPIC_API_KEY</code></td>
+                    <td>Anthropic API key for Claude models</td>
+                </tr>
+                <tr>
+                    <td><code>OLLAMA_HOST</code></td>
+                    <td>Ollama server URL (default: <code>http://localhost:11434</code>)</td>
+                </tr>
+                <tr>
+                    <td><code>DOCKERIZER_AI_PROVIDER</code></td>
+                    <td>Default AI provider</td>
+                </tr>
+                <tr>
+                    <td><code>DOCKERIZER_AI_MODEL</code></td>
+                    <td>Default AI model</td>
+                </tr>
+                <tr>
+                    <td><code>DOCKERIZER_VERBOSE</code></td>
+                    <td>Enable verbose mode (<code>true</code>/<code>false</code>)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Exit Codes</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>0</code></td>
+                    <td>Success</td>
+                </tr>
+                <tr>
+                    <td><code>1</code></td>
+                    <td>General error</td>
+                </tr>
+                <tr>
+                    <td><code>2</code></td>
+                    <td>Detection failed (no framework detected)</td>
+                </tr>
+                <tr>
+                    <td><code>3</code></td>
+                    <td>AI generation failed</td>
+                </tr>
+                <tr>
+                    <td><code>4</code></td>
+                    <td>File write error</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Examples</h2>
+
+        <h3>Basic Usage</h3>
+        <pre><code># Generate for current directory
+dockerizer
+
+# Generate for specific path
+dockerizer /path/to/project
+
+# Preview without writing
+dockerizer plan</code></pre>
+
+        <h3>With Flags</h3>
+        <pre><code># Force overwrite existing files
+dockerizer --force
+
+# Only generate Dockerfile
+dockerizer --no-compose --no-ignore
+
+# Force AI generation
+dockerizer --ai --ai-provider openai
+
+# Output to stdout
+dockerizer --stdout</code></pre>
+
+        <h3>Using Environment Variables</h3>
+        <pre><code># Set API key and generate
+export OPENAI_API_KEY="sk-..."
+dockerizer --ai
+
+# Or inline
+OPENAI_API_KEY="sk-..." dockerizer --ai</code></pre>
+
+        <div class="alert alert-info">
+            <strong>Need more examples?</strong> Check out the <a href="/examples.html">Examples</a> page for real-world usage scenarios.
+        </div>
+    </main>
+
+    <footer>
+        <p>Made by <a href="https://dublyo.com">Dublyo</a></p>
+    </footer>
+</body>
+</html>

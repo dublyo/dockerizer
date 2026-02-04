@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supported Frameworks - Dockerizer</title>
+    <meta name="description" content="Dockerizer supports Node.js, Python, Go, and Rust frameworks including Next.js, Express, Django, FastAPI, Flask, Gin, Fiber, Echo, Actix, and Axum.">
+    <meta name="keywords" content="docker nextjs, docker django, docker fastapi, docker gin, docker rust, dockerfile generator frameworks">
+    <link rel="canonical" href="https://dockerizer.dev/frameworks.html">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+    <style>
+        .framework-section {
+            margin: 3rem 0;
+        }
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .framework-card {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+        .framework-card h4 {
+            color: var(--fg);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .framework-card h4 i {
+            font-size: 1.5rem;
+        }
+        .framework-card p {
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        .framework-card ul {
+            font-size: 0.875rem;
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .section-header i {
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="nav-logo">Dockerizer</a>
+            <ul class="nav-links">
+                <li><a href="/docs.html">Docs</a></li>
+                <li><a href="/frameworks.html" class="active">Frameworks</a></li>
+                <li><a href="/cli.html">CLI Reference</a></li>
+                <li><a href="/examples.html">Examples</a></li>
+                <li><a href="/ai-config.html">AI Config</a></li>
+                <li><a href="https://github.com/dublyo/dockerizer">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="breadcrumb">
+            <a href="/">Home</a> / Frameworks
+        </div>
+
+        <h1>Supported Frameworks</h1>
+        <p>Dockerizer provides optimized templates for popular frameworks across multiple languages. Each template follows production best practices specific to that framework.</p>
+
+        <section class="framework-section" id="nodejs">
+            <h2 class="section-header"><i class="devicon-nodejs-plain colored"></i> Node.js</h2>
+            <p>Full support for JavaScript and TypeScript projects with automatic detection of package managers (npm, yarn, pnpm).</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-nextjs-plain"></i> Next.js</h4>
+                    <p>React framework with SSR support</p>
+                    <ul>
+                        <li>Standalone output mode</li>
+                        <li>Static asset optimization</li>
+                        <li>Environment variables</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-express-original"></i> Express.js</h4>
+                    <p>Minimal web framework</p>
+                    <ul>
+                        <li>TypeScript support</li>
+                        <li>Production NODE_ENV</li>
+                        <li>Health check endpoint</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-nestjs-original colored"></i> NestJS</h4>
+                    <p>Enterprise Node.js framework</p>
+                    <ul>
+                        <li>TypeScript compilation</li>
+                        <li>Microservices ready</li>
+                        <li>Swagger integration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Node.js Dockerfile Features</h3>
+            <ul>
+                <li>Multi-stage builds with separate builder and runner stages</li>
+                <li>Automatic package manager detection (npm, yarn, pnpm)</li>
+                <li>Production dependencies only in final image</li>
+                <li>Non-root <code>nodejs</code> user for security</li>
+                <li>Node.js LTS versions (18, 20, 22)</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="python">
+            <h2 class="section-header"><i class="devicon-python-plain colored"></i> Python</h2>
+            <p>Support for modern Python web frameworks with automatic detection of package managers (pip, poetry, pipenv).</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-django-plain colored"></i> Django</h4>
+                    <p>Full-stack web framework</p>
+                    <ul>
+                        <li>Gunicorn WSGI server</li>
+                        <li>Static file collection</li>
+                        <li>PostgreSQL support</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-fastapi-plain colored"></i> FastAPI</h4>
+                    <p>Modern async API framework</p>
+                    <ul>
+                        <li>Uvicorn ASGI server</li>
+                        <li>Auto-generated OpenAPI</li>
+                        <li>Async support</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-flask-original"></i> Flask</h4>
+                    <p>Lightweight WSGI framework</p>
+                    <ul>
+                        <li>Gunicorn production server</li>
+                        <li>Blueprint support</li>
+                        <li>Extension detection</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Python Dockerfile Features</h3>
+            <ul>
+                <li>Slim base images for smaller footprint</li>
+                <li>Virtual environment isolation</li>
+                <li>Automatic WSGI/ASGI server selection</li>
+                <li>Python 3.9-3.12 support</li>
+                <li>Poetry and pipenv compatibility</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="go">
+            <h2 class="section-header"><i class="devicon-go-original-wordmark colored"></i> Go</h2>
+            <p>Support for Go web frameworks with optimized static binary compilation.</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-go-plain colored"></i> Gin</h4>
+                    <p>High-performance HTTP framework</p>
+                    <ul>
+                        <li>Zero allocation router</li>
+                        <li>Middleware support</li>
+                        <li>JSON validation</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-go-plain colored"></i> Fiber</h4>
+                    <p>Express-inspired framework</p>
+                    <ul>
+                        <li>Fasthttp engine</li>
+                        <li>Zero memory allocation</li>
+                        <li>WebSocket support</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-go-plain colored"></i> Echo</h4>
+                    <p>Minimalist web framework</p>
+                    <ul>
+                        <li>Optimized HTTP router</li>
+                        <li>Data binding</li>
+                        <li>HTTP/2 support</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-go-plain colored"></i> Standard Library</h4>
+                    <p>net/http based servers</p>
+                    <ul>
+                        <li>No external dependencies</li>
+                        <li>ServeMux detection</li>
+                        <li>Handler patterns</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Go Dockerfile Features</h3>
+            <ul>
+                <li>Static binary compilation with CGO_ENABLED=0</li>
+                <li>Scratch or Alpine final images (~10MB)</li>
+                <li>ldflags for smaller binaries</li>
+                <li>Go modules support</li>
+                <li>Cross-compilation ready</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="rust">
+            <h2 class="section-header"><i class="devicon-rust-original"></i> Rust</h2>
+            <p>Support for Rust web frameworks with optimized release builds.</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-rust-original"></i> Actix Web</h4>
+                    <p>Powerful actor-based framework</p>
+                    <ul>
+                        <li>Async/await support</li>
+                        <li>WebSocket actors</li>
+                        <li>Type-safe extractors</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-rust-original"></i> Axum</h4>
+                    <p>Tokio-based web framework</p>
+                    <ul>
+                        <li>Tower middleware</li>
+                        <li>Type-safe routing</li>
+                        <li>Hyper integration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Rust Dockerfile Features</h3>
+            <ul>
+                <li>cargo-chef for dependency caching</li>
+                <li>Release builds with optimizations</li>
+                <li>Debian slim final images</li>
+                <li>SSL/TLS certificates included</li>
+                <li>Minimal runtime dependencies</li>
+            </ul>
+        </section>
+
+        <h2>Detection Accuracy</h2>
+        <p>Detection confidence is based on multiple signals:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Signal</th>
+                    <th>Weight</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Package manifest</td>
+                    <td>+50</td>
+                    <td><code>"next"</code> in package.json</td>
+                </tr>
+                <tr>
+                    <td>Framework import</td>
+                    <td>+30</td>
+                    <td><code>from fastapi import FastAPI</code></td>
+                </tr>
+                <tr>
+                    <td>Config files</td>
+                    <td>+20</td>
+                    <td><code>next.config.js</code> present</td>
+                </tr>
+                <tr>
+                    <td>Directory structure</td>
+                    <td>+10</td>
+                    <td><code>app/</code> or <code>pages/</code> directory</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-info">
+            <strong>Can't find your framework?</strong> Dockerizer can use AI to generate configurations for any tech stack. See <a href="/ai-config.html">AI Configuration</a>.
+        </div>
+    </main>
+
+    <footer>
+        <p>Made by <a href="https://dublyo.com">Dublyo</a></p>
+    </footer>
+</body>
+</html>
