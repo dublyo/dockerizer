@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supported Frameworks - Dockerizer</title>
-    <meta name="description" content="Dockerizer supports Node.js, Python, Go, and Rust frameworks including Next.js, Express, Django, FastAPI, Flask, Gin, Fiber, Echo, Actix, and Axum.">
-    <meta name="keywords" content="docker nextjs, docker django, docker fastapi, docker gin, docker rust, dockerfile generator frameworks">
+    <meta name="description" content="Dockerizer supports 24 frameworks across Node.js, Python, Go, Rust, Ruby, PHP, Java, .NET, and Elixir including Next.js, Remix, Astro, Django, Rails, Laravel, Spring Boot, ASP.NET Core, and Phoenix.">
+    <meta name="keywords" content="docker nextjs, docker remix, docker astro, docker django, docker rails, docker laravel, docker springboot, docker aspnet, docker phoenix, dockerfile generator frameworks">
     <link rel="canonical" href="https://dockerizer.dev/frameworks.html">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
@@ -75,7 +75,7 @@
         </div>
 
         <h1>Supported Frameworks</h1>
-        <p>Dockerizer provides optimized templates for popular frameworks across multiple languages. Each template follows production best practices specific to that framework.</p>
+        <p>Dockerizer provides optimized templates for 24 popular frameworks across 9 languages. Each template follows production best practices specific to that framework.</p>
 
         <section class="framework-section" id="nodejs">
             <h2 class="section-header"><i class="devicon-nodejs-plain colored"></i> Node.js</h2>
@@ -92,12 +92,12 @@
                     </ul>
                 </div>
                 <div class="framework-card">
-                    <h4><i class="devicon-express-original"></i> Express.js</h4>
-                    <p>Minimal web framework</p>
+                    <h4><i class="devicon-nuxtjs-plain colored"></i> Nuxt</h4>
+                    <p>Vue.js meta-framework</p>
                     <ul>
-                        <li>TypeScript support</li>
-                        <li>Production NODE_ENV</li>
-                        <li>Health check endpoint</li>
+                        <li>Nuxt 3 support</li>
+                        <li>SSR/SSG modes</li>
+                        <li>Nitro server</li>
                     </ul>
                 </div>
                 <div class="framework-card">
@@ -107,6 +107,60 @@
                         <li>TypeScript compilation</li>
                         <li>Microservices ready</li>
                         <li>Swagger integration</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-react-original colored"></i> Remix</h4>
+                    <p>Full-stack React framework</p>
+                    <ul>
+                        <li>Vite integration</li>
+                        <li>Server-side rendering</li>
+                        <li>Nested routing</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-astro-plain colored"></i> Astro</h4>
+                    <p>Content-driven web framework</p>
+                    <ul>
+                        <li>Static/SSR modes</li>
+                        <li>Island architecture</li>
+                        <li>Multi-framework</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-svelte-plain colored"></i> SvelteKit</h4>
+                    <p>Full-stack Svelte framework</p>
+                    <ul>
+                        <li>Node adapter</li>
+                        <li>File-based routing</li>
+                        <li>SSR support</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-nodejs-plain colored"></i> Hono</h4>
+                    <p>Ultrafast web framework</p>
+                    <ul>
+                        <li>Bun/Node support</li>
+                        <li>Edge-ready</li>
+                        <li>TypeScript native</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-nodejs-plain colored"></i> Koa</h4>
+                    <p>Elegant Node.js framework</p>
+                    <ul>
+                        <li>Async/await native</li>
+                        <li>Middleware cascade</li>
+                        <li>Modular design</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-express-original"></i> Express.js</h4>
+                    <p>Minimal web framework</p>
+                    <ul>
+                        <li>TypeScript support</li>
+                        <li>Production NODE_ENV</li>
+                        <li>Health check endpoint</li>
                     </ul>
                 </div>
             </div>
@@ -250,6 +304,140 @@
                 <li>Debian slim final images</li>
                 <li>SSL/TLS certificates included</li>
                 <li>Minimal runtime dependencies</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="ruby">
+            <h2 class="section-header"><i class="devicon-ruby-plain colored"></i> Ruby</h2>
+            <p>Support for Ruby web frameworks with Bundler dependency management.</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-rails-plain colored"></i> Ruby on Rails</h4>
+                    <p>Full-stack web framework</p>
+                    <ul>
+                        <li>Asset precompilation</li>
+                        <li>Puma production server</li>
+                        <li>Database migrations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Ruby Dockerfile Features</h3>
+            <ul>
+                <li>Bundler dependency caching</li>
+                <li>Asset pipeline compilation</li>
+                <li>Non-root user for security</li>
+                <li>Ruby 3.x support</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="php">
+            <h2 class="section-header"><i class="devicon-php-plain colored"></i> PHP</h2>
+            <p>Support for PHP frameworks with Composer dependency management.</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-laravel-original colored"></i> Laravel</h4>
+                    <p>Elegant PHP framework</p>
+                    <ul>
+                        <li>Nginx + PHP-FPM</li>
+                        <li>Queue workers</li>
+                        <li>Storage permissions</li>
+                    </ul>
+                </div>
+                <div class="framework-card">
+                    <h4><i class="devicon-symfony-original colored"></i> Symfony</h4>
+                    <p>Enterprise PHP framework</p>
+                    <ul>
+                        <li>Doctrine ORM</li>
+                        <li>Flex recipes</li>
+                        <li>Cache warmup</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>PHP Dockerfile Features</h3>
+            <ul>
+                <li>PHP-FPM with Nginx</li>
+                <li>Composer autoloader optimization</li>
+                <li>OPcache enabled</li>
+                <li>PHP 8.x support</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="java">
+            <h2 class="section-header"><i class="devicon-java-plain colored"></i> Java</h2>
+            <p>Support for Java frameworks with Maven and Gradle build tools.</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-spring-original colored"></i> Spring Boot</h4>
+                    <p>Enterprise Java framework</p>
+                    <ul>
+                        <li>Maven/Gradle support</li>
+                        <li>JRE runtime image</li>
+                        <li>Actuator health checks</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Java Dockerfile Features</h3>
+            <ul>
+                <li>Multi-stage JDK build, JRE runtime</li>
+                <li>Container-aware JVM options</li>
+                <li>Eclipse Temurin base images</li>
+                <li>Java 17/21 LTS support</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="dotnet">
+            <h2 class="section-header"><i class="devicon-dotnetcore-plain colored"></i> .NET</h2>
+            <p>Support for .NET web frameworks with optimized SDK builds.</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-dotnetcore-plain colored"></i> ASP.NET Core</h4>
+                    <p>Cross-platform web framework</p>
+                    <ul>
+                        <li>Kestrel server</li>
+                        <li>Entity Framework</li>
+                        <li>Minimal APIs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>.NET Dockerfile Features</h3>
+            <ul>
+                <li>SDK build, ASP.NET runtime</li>
+                <li>Alpine-based images</li>
+                <li>Self-contained publish</li>
+                <li>.NET 6/7/8 support</li>
+            </ul>
+        </section>
+
+        <section class="framework-section" id="elixir">
+            <h2 class="section-header"><i class="devicon-elixir-plain colored"></i> Elixir</h2>
+            <p>Support for Elixir web frameworks with Mix build tool.</p>
+
+            <div class="framework-grid">
+                <div class="framework-card">
+                    <h4><i class="devicon-phoenix-plain colored"></i> Phoenix</h4>
+                    <p>Real-time web framework</p>
+                    <ul>
+                        <li>LiveView support</li>
+                        <li>Ecto migrations</li>
+                        <li>Release builds</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Elixir Dockerfile Features</h3>
+            <ul>
+                <li>Mix release compilation</li>
+                <li>Alpine runtime images</li>
+                <li>Asset compilation</li>
+                <li>Elixir 1.14+ support</li>
             </ul>
         </section>
 
