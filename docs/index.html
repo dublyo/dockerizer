@@ -12,8 +12,8 @@
     <meta property="og:url" content="https://dockerizer.dev">
     <link rel="canonical" href="https://dockerizer.dev">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
     <style>
-        /* Homepage specific styles */
         .hero {
             min-height: calc(100vh - 60px);
             display: flex;
@@ -22,58 +22,402 @@
             justify-content: center;
             text-align: center;
             padding: 2rem;
+            background: linear-gradient(180deg, var(--bg) 0%, rgba(0, 122, 204, 0.05) 100%);
         }
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
             margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .hero .tagline {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
+            color: var(--fg-muted);
+            margin-bottom: 1rem;
+            max-width: 600px;
+        }
+        .hero .subtitle {
+            font-size: 1rem;
             color: var(--fg-muted);
             margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 3rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--fg-muted);
+        }
+
+        /* Terminal Demo */
+        .terminal {
+            background: #1e1e1e;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 650px;
+            margin: 2rem 0;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+        }
+        .terminal-header {
+            background: #323232;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27ca40; }
+        .terminal-title {
+            flex: 1;
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .terminal-body {
+            padding: 1.25rem;
+            font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+        .terminal-line {
+            margin: 0.25rem 0;
+        }
+        .terminal-prompt {
+            color: #27ca40;
+        }
+        .terminal-command {
+            color: #fff;
+        }
+        .terminal-output {
+            color: #888;
+        }
+        .terminal-success {
+            color: #27ca40;
+        }
+        .terminal-info {
+            color: #61afef;
+        }
+        .terminal-muted {
+            color: #666;
+        }
+
+        /* Install Box */
+        .install-section {
+            margin: 2rem 0;
         }
         .install-box {
             background: var(--code-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 1.5rem 2rem;
-            margin: 2rem 0;
+            padding: 1rem 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
         }
         .install-box code {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--accent);
             background: none;
         }
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-            max-width: 900px;
-            text-align: left;
+        .copy-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
         }
-        .feature {
-            padding: 1.25rem;
-            background: var(--code-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border);
+        .copy-btn:hover {
+            opacity: 0.9;
         }
-        .feature h3 {
-            color: var(--accent);
-            margin: 0 0 0.5rem;
-            font-size: 1rem;
-        }
-        .feature p {
-            font-size: 0.9rem;
-            color: var(--fg-muted);
-            margin: 0;
-        }
+
+        /* Buttons */
         .buttons {
             display: flex;
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             flex-wrap: wrap;
             justify-content: center;
+        }
+        .btn {
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #005a9e;
+        }
+        .btn-secondary {
+            border: 1px solid var(--border);
+            color: var(--fg);
+            background: transparent;
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Framework Icons */
+        .frameworks-section {
+            padding: 4rem 2rem;
+            background: var(--code-bg);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .frameworks-section h2 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .frameworks-section .section-subtitle {
+            text-align: center;
+            color: var(--fg-muted);
+            margin-bottom: 2rem;
+        }
+        .framework-icons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .framework-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            min-width: 80px;
+        }
+        .framework-icon:hover {
+            background: var(--bg);
+            transform: translateY(-2px);
+        }
+        .framework-icon i {
+            font-size: 2.5rem;
+        }
+        .framework-icon span {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+        }
+
+        /* Features Grid */
+        .features-section {
+            padding: 4rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .features-section h2 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .features-section .section-subtitle {
+            text-align: center;
+            color: var(--fg-muted);
+            margin-bottom: 3rem;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .feature-card {
+            padding: 1.5rem;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .feature-card h3 {
+            color: var(--accent);
+            margin: 0 0 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .feature-card h3 .icon {
+            font-size: 1.25rem;
+        }
+        .feature-card p {
+            color: var(--fg-muted);
+            margin: 0 0 1rem;
+            font-size: 0.95rem;
+        }
+        .feature-card ul {
+            margin: 0;
+            padding-left: 1.25rem;
+            font-size: 0.9rem;
+            color: var(--fg-muted);
+        }
+        .feature-card li {
+            margin: 0.25rem 0;
+        }
+
+        /* How It Works */
+        .how-section {
+            padding: 4rem 2rem;
+            background: var(--code-bg);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .how-section h2 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .how-section .section-subtitle {
+            text-align: center;
+            color: var(--fg-muted);
+            margin-bottom: 3rem;
+        }
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .step {
+            flex: 1;
+            min-width: 200px;
+            max-width: 260px;
+            text-align: center;
+        }
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+        .step h3 {
+            margin: 0 0 0.5rem;
+        }
+        .step p {
+            color: var(--fg-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Use Cases */
+        .use-cases-section {
+            padding: 4rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .use-cases-section h2 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .use-cases-section .section-subtitle {
+            text-align: center;
+            color: var(--fg-muted);
+            margin-bottom: 3rem;
+        }
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .use-case {
+            padding: 1.5rem;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .use-case h3 {
+            margin: 0 0 0.5rem;
+            font-size: 1rem;
+        }
+        .use-case p {
+            color: var(--fg-muted);
+            font-size: 0.9rem;
+            margin: 0 0 1rem;
+        }
+        .use-case code {
+            font-size: 0.85rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(0, 122, 204, 0.05) 0%, var(--bg) 100%);
+            border-top: 1px solid var(--border);
+        }
+        .cta-section h2 {
+            margin-bottom: 1rem;
+        }
+        .cta-section p {
+            color: var(--fg-muted);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero .tagline {
+                font-size: 1.1rem;
+            }
+            .stats-bar {
+                gap: 1.5rem;
+            }
+            .stat-number {
+                font-size: 2rem;
+            }
+            .terminal {
+                margin: 1rem 0;
+            }
+            .terminal-body {
+                font-size: 0.8rem;
+                padding: 1rem;
+            }
         }
     </style>
 </head>
@@ -92,38 +436,278 @@
         </div>
     </nav>
 
-    <div class="hero">
+    <section class="hero">
         <h1>Dockerizer</h1>
-        <p class="tagline">AI-powered Docker configuration generator</p>
+        <p class="tagline">Generate production-ready Docker configurations in seconds</p>
+        <p class="subtitle">Automatically detect your framework and create optimized Dockerfiles with AI-powered fallback</p>
 
-        <div class="install-box">
-            <code>curl -fsSL https://dockerizer.dev/install.sh | sh</code>
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">24</div>
+                <div class="stat-label">Frameworks</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">9</div>
+                <div class="stat-label">Languages</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">90%+</div>
+                <div class="stat-label">Detection Accuracy</div>
+            </div>
         </div>
 
-        <div class="features">
-            <div class="feature">
-                <h3>Auto Detection</h3>
-                <p>Detects language, framework, and version with 90%+ confidence</p>
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <div class="terminal-title">Terminal</div>
             </div>
-            <div class="feature">
-                <h3>AI Fallback</h3>
-                <p>Uses OpenAI, Anthropic, or Ollama when detection is uncertain</p>
+            <div class="terminal-body">
+                <div class="terminal-line">
+                    <span class="terminal-prompt">$</span>
+                    <span class="terminal-command"> cd my-nextjs-app</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="terminal-prompt">$</span>
+                    <span class="terminal-command"> dockerizer</span>
+                </div>
+                <div class="terminal-line terminal-output">Scanning project...</div>
+                <div class="terminal-line terminal-info">Detected: Next.js (confidence: 95%)</div>
+                <div class="terminal-line terminal-muted">  - Node version: 20</div>
+                <div class="terminal-line terminal-muted">  - Package manager: npm</div>
+                <div class="terminal-line terminal-muted">  - TypeScript: yes</div>
+                <div class="terminal-line terminal-output">&nbsp;</div>
+                <div class="terminal-line terminal-output">Generating files...</div>
+                <div class="terminal-line terminal-success">  &#10003; Dockerfile</div>
+                <div class="terminal-line terminal-success">  &#10003; docker-compose.yml</div>
+                <div class="terminal-line terminal-success">  &#10003; .dockerignore</div>
+                <div class="terminal-line terminal-output">&nbsp;</div>
+                <div class="terminal-line terminal-success">Done! Run `docker-compose up --build` to start.</div>
             </div>
-            <div class="feature">
-                <h3>Production Ready</h3>
-                <p>Multi-stage builds, non-root users, health checks</p>
-            </div>
-            <div class="feature">
-                <h3>Interactive Setup</h3>
-                <p>Guided CLI wizard for easy configuration</p>
+        </div>
+
+        <div class="install-section">
+            <div class="install-box">
+                <code>curl -fsSL https://dockerizer.dev/install.sh | sh</code>
+                <button class="copy-btn" onclick="navigator.clipboard.writeText('curl -fsSL https://dockerizer.dev/install.sh | sh')">Copy</button>
             </div>
         </div>
 
         <div class="buttons">
             <a href="/docs.html" class="btn btn-primary">Get Started</a>
-            <a href="https://github.com/dublyo/dockerizer" class="btn" style="border: 1px solid var(--border); color: var(--fg);">View on GitHub</a>
+            <a href="https://github.com/dublyo/dockerizer" class="btn btn-secondary">View on GitHub</a>
         </div>
-    </div>
+    </section>
+
+    <section class="frameworks-section">
+        <h2>Supported Frameworks</h2>
+        <p class="section-subtitle">Battle-tested templates for the most popular frameworks</p>
+
+        <div class="framework-icons">
+            <div class="framework-icon">
+                <i class="devicon-nextjs-plain"></i>
+                <span>Next.js</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-react-original colored"></i>
+                <span>Remix</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-nuxtjs-plain colored"></i>
+                <span>Nuxt</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-astro-plain"></i>
+                <span>Astro</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-svelte-plain colored"></i>
+                <span>SvelteKit</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-nestjs-original colored"></i>
+                <span>NestJS</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-express-original"></i>
+                <span>Express</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-django-plain"></i>
+                <span>Django</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-fastapi-plain colored"></i>
+                <span>FastAPI</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-flask-original"></i>
+                <span>Flask</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-rails-plain colored"></i>
+                <span>Rails</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-laravel-original colored"></i>
+                <span>Laravel</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-symfony-original"></i>
+                <span>Symfony</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-spring-original colored"></i>
+                <span>Spring Boot</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-dotnetcore-plain colored"></i>
+                <span>ASP.NET</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-phoenix-plain colored"></i>
+                <span>Phoenix</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-go-plain colored"></i>
+                <span>Go/Gin</span>
+            </div>
+            <div class="framework-icon">
+                <i class="devicon-rust-original"></i>
+                <span>Rust/Actix</span>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="/frameworks.html" class="btn btn-secondary">View All Frameworks</a>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <h2>Features</h2>
+        <p class="section-subtitle">Everything you need for production-ready containers</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3><span class="icon">&#128269;</span> Smart Detection</h3>
+                <p>Automatically identifies your project's language, framework, and version with high confidence.</p>
+                <ul>
+                    <li>Package file analysis (package.json, go.mod, etc.)</li>
+                    <li>Framework-specific config detection</li>
+                    <li>Confidence scoring system</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3><span class="icon">&#129302;</span> AI Fallback</h3>
+                <p>When detection is uncertain, leverage AI providers to generate accurate configurations.</p>
+                <ul>
+                    <li>OpenAI, Anthropic, or Ollama support</li>
+                    <li>Works with any tech stack</li>
+                    <li>Context-aware generation</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3><span class="icon">&#128737;</span> Production Ready</h3>
+                <p>Generated Dockerfiles follow industry best practices for security and performance.</p>
+                <ul>
+                    <li>Multi-stage builds</li>
+                    <li>Non-root users</li>
+                    <li>Health checks included</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3><span class="icon">&#9889;</span> Optimized Images</h3>
+                <p>Minimal final images with efficient layer caching for fast builds and deploys.</p>
+                <ul>
+                    <li>Alpine/slim base images</li>
+                    <li>Dependency caching</li>
+                    <li>Production-only builds</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3><span class="icon">&#128230;</span> Complete Output</h3>
+                <p>Generates everything needed to containerize your application.</p>
+                <ul>
+                    <li>Dockerfile with best practices</li>
+                    <li>docker-compose.yml for orchestration</li>
+                    <li>.dockerignore for clean builds</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3><span class="icon">&#128295;</span> Easy Integration</h3>
+                <p>Works seamlessly in any development workflow or CI/CD pipeline.</p>
+                <ul>
+                    <li>Single command execution</li>
+                    <li>CI/CD friendly flags</li>
+                    <li>Monorepo support</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-section">
+        <h2>How It Works</h2>
+        <p class="section-subtitle">From project to container in three simple steps</p>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Scan</h3>
+                <p>Dockerizer analyzes your project files, dependencies, and configuration to understand your tech stack.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Detect</h3>
+                <p>Using pattern matching and AI, it identifies your framework with confidence scoring for accuracy.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Generate</h3>
+                <p>Creates optimized Docker configurations using battle-tested templates tailored to your framework.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="use-cases-section">
+        <h2>Use Cases</h2>
+        <p class="section-subtitle">How teams use Dockerizer</p>
+
+        <div class="use-cases-grid">
+            <div class="use-case">
+                <h3>Local Development</h3>
+                <p>Quickly containerize projects for consistent development environments across your team.</p>
+                <pre><code>dockerizer && docker-compose up</code></pre>
+            </div>
+            <div class="use-case">
+                <h3>CI/CD Pipelines</h3>
+                <p>Automate Dockerfile generation in your deployment pipeline with quiet mode.</p>
+                <pre><code>dockerizer --force --quiet
+docker build -t app:$SHA .</code></pre>
+            </div>
+            <div class="use-case">
+                <h3>Legacy Projects</h3>
+                <p>Add Docker support to existing projects without deep containerization knowledge.</p>
+                <pre><code>cd legacy-app
+dockerizer --ai</code></pre>
+            </div>
+            <div class="use-case">
+                <h3>Microservices</h3>
+                <p>Generate configs for multiple services in a monorepo with a single pass.</p>
+                <pre><code>dockerizer ./services/api
+dockerizer ./services/web</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>Ready to containerize?</h2>
+        <p>Get started with Dockerizer and generate production-ready Docker configurations for your project.</p>
+        <div class="buttons">
+            <a href="/docs.html" class="btn btn-primary">Read the Docs</a>
+            <a href="/examples.html" class="btn btn-secondary">View Examples</a>
+        </div>
+    </section>
 
     <footer>
         <p>Made by <a href="https://dublyo.com">Dublyo</a></p>
