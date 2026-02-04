@@ -152,7 +152,7 @@ func setupRegistry() *detector.Registry {
 // outputError handles error output
 func outputError(context string, err error) error {
 	if jsonOut {
-		outputJSON(DockerizeResult{
+		_ = outputJSON(DockerizeResult{
 			Success: false,
 			Error:   fmt.Sprintf("%s: %v", context, err),
 		})
