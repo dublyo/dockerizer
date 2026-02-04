@@ -7,7 +7,7 @@ dist/
 *.dll
 *.so
 *.dylib
-dockerizer
+/dockerizer
 
 # Test binaries
 *.test
