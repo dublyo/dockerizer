@@ -75,13 +75,13 @@ ANTHROPIC_API_KEY=sk-ant-xxx dockerizer --ai ./my-project
 
 | Language | Frameworks | Confidence |
 |----------|------------|------------|
-| **Node.js** | Next.js, NestJS, Nuxt, Remix, Astro, SvelteKit, Hono, Koa, Express | 80-100% |
+| **Node.js** | Next.js, NestJS, Nuxt, Remix, Astro, SvelteKit, Hono, Koa, Fastify, Express | 80-100% |
 | **Python** | Django, FastAPI, Flask | 90-100% |
 | **Go** | Gin, Fiber, Echo, Standard | 90% |
 | **Rust** | Actix Web, Axum | 90% |
 | **Ruby** | Rails | 85-90% |
 | **PHP** | Laravel, Symfony | 85-95% |
-| **Java** | Spring Boot | 90-95% |
+| **Java** | Spring Boot, Quarkus | 90-95% |
 | **.NET** | ASP.NET Core | 70-90% |
 | **Elixir** | Phoenix | 80-90% |
 
