@@ -86,6 +86,12 @@ func (p *FastAPIProvider) Detect(ctx context.Context, scan *scanner.ScanResult) 
 	if vars["mainFile"] == nil {
 		vars["mainFile"] = "main.py"
 	}
+	// Convert file path to module name for uvicorn (e.g., "src/main.py" -> "src.main")
+	if mainFile, ok := vars["mainFile"].(string); ok {
+		moduleName := strings.TrimSuffix(mainFile, ".py")
+		moduleName = strings.ReplaceAll(moduleName, "/", ".")
+		vars["moduleName"] = moduleName
+	}
 	vars["port"] = "8000"
 
 	if score > 100 {

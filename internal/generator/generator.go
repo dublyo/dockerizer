@@ -322,6 +322,8 @@ func (g *generator) executeTemplate(tmplContent string, vars map[string]interfac
 			}
 			return strings.ToUpper(s[:1]) + s[1:]
 		},
+		"trimSuffix": strings.TrimSuffix,
+		"replace":    strings.ReplaceAll,
 	}
 
 	tmpl, err := template.New("template").Funcs(funcMap).Parse(tmplContent)
@@ -870,7 +872,7 @@ CMD ["gunicorn", "--bind", "0.0.0.0:{{.port | default "8000"}}", "--workers", "2
 {{end}}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:{{.port | default "8000"}}/health || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default "8000"}}/health')" || exit 1
 `
 
 // FastAPI template
@@ -914,10 +916,10 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE {{.port | default "8000"}}
 
-CMD ["uvicorn", "{{.mainFile | default "main"}}:app", "--host", "0.0.0.0", "--port", "{{.port | default "8000"}}"]
+CMD ["uvicorn", "{{.moduleName | default "main"}}:app", "--host", "0.0.0.0", "--port", "{{.port | default "8000"}}"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:{{.port | default "8000"}}/health || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default "8000"}}/health')" || exit 1
 `
 
 // Flask template
@@ -970,7 +972,7 @@ CMD ["gunicorn", "--bind", "0.0.0.0:{{.port | default "5000"}}", "--workers", "2
 {{end}}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:{{.port | default "5000"}}/health || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default "5000"}}/health')" || exit 1
 `
 
 // Gin template
@@ -1205,6 +1207,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libssl3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -1260,6 +1263,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libssl3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --shell /bin/bash appuser
