@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dockerizer - AI-Powered Docker Configuration Generator</title>
+    <meta name="description" content="Generate production-ready Dockerfiles, docker-compose.yml, and .dockerignore files for any repository using AI.">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --fg: #c9d1d9;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --code-bg: #161b22;
+            --border: #30363d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 800px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #a371f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .tagline {
+            font-size: 1.25rem;
+            color: #8b949e;
+            margin-bottom: 2rem;
+        }
+        .install-box {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .install-box code {
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        .feature {
+            padding: 1rem;
+            background: var(--code-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .feature h3 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .feature p {
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--fg);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        footer {
+            margin-top: 3rem;
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dockerizer</h1>
+        <p class="tagline">AI-powered Docker configuration generator</p>
+
+        <div class="install-box">
+            <code>curl -fsSL https://dockerizer.dev/install.sh | sh</code>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3>Auto Detection</h3>
+                <p>Detects language, framework, and version with 90%+ confidence</p>
+            </div>
+            <div class="feature">
+                <h3>AI Fallback</h3>
+                <p>Uses OpenAI, Anthropic, or Ollama when detection is uncertain</p>
+            </div>
+            <div class="feature">
+                <h3>Production Ready</h3>
+                <p>Multi-stage builds, non-root users, health checks</p>
+            </div>
+            <div class="feature">
+                <h3>Interactive Setup</h3>
+                <p>Guided CLI wizard for easy configuration</p>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <a href="https://github.com/dublyo/dockerizer" class="btn btn-primary">GitHub</a>
+            <a href="https://github.com/dublyo/dockerizer#quick-start" class="btn btn-secondary">Documentation</a>
+        </div>
+
+        <footer>
+            <p>Made by <a href="https://dublyo.com">Dublyo</a></p>
+        </footer>
+    </div>
+</body>
+</html>

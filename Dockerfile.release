@@ -1,0 +1,8 @@
+# Minimal release Dockerfile
+FROM alpine:3.19
+
+RUN apk add --no-cache ca-certificates curl
+
+COPY dockerizer /usr/local/bin/dockerizer
+
+ENTRYPOINT ["/usr/local/bin/dockerizer"]

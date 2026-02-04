@@ -1,0 +1,97 @@
+# GoReleaser configuration for Dublyo Dockerizer
+# https://goreleaser.com
+
+project_name: dockerizer
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: ./cmd/dockerizer
+    binary: dockerizer
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/dublyo/dockerizer/internal/cli.Version={{.Version}}
+      - -X github.com/dublyo/dockerizer/internal/cli.GitCommit={{.Commit}}
+      - -X github.com/dublyo/dockerizer/internal/cli.BuildTime={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+
+brews:
+  - name: dockerizer
+    repository:
+      owner: dublyo
+      name: homebrew-tap
+    homepage: https://github.com/dublyo/dockerizer
+    description: AI-powered Docker configuration generator
+    license: MIT
+    folder: Formula
+    install: |
+      bin.install "dockerizer"
+    test: |
+      system "#{bin}/dockerizer", "version"
+
+nfpms:
+  - package_name: dockerizer
+    vendor: Dublyo
+    homepage: https://github.com/dublyo/dockerizer
+    maintainer: Dublyo <hello@dublyo.com>
+    description: AI-powered Docker configuration generator
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/bin
+
+dockers:
+  - image_templates:
+      - "ghcr.io/dublyo/dockerizer:{{ .Tag }}"
+      - "ghcr.io/dublyo/dockerizer:latest"
+    dockerfile: Dockerfile.release
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+
+release:
+  github:
+    owner: dublyo
+    name: dockerizer
+  draft: false
+  prerelease: auto
+  name_template: "v{{.Version}}"
