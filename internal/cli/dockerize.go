@@ -12,8 +12,11 @@ import (
 	"github.com/dublyo/dockerizer/internal/generator"
 	"github.com/dublyo/dockerizer/internal/scanner"
 	"github.com/dublyo/dockerizer/providers/golang"
+	"github.com/dublyo/dockerizer/providers/java"
 	"github.com/dublyo/dockerizer/providers/nodejs"
+	"github.com/dublyo/dockerizer/providers/php"
 	"github.com/dublyo/dockerizer/providers/python"
+	"github.com/dublyo/dockerizer/providers/ruby"
 	"github.com/dublyo/dockerizer/providers/rust"
 )
 
@@ -145,6 +148,9 @@ func setupRegistry() *detector.Registry {
 	python.RegisterAll(registry)
 	golang.RegisterAll(registry)
 	rust.RegisterAll(registry)
+	ruby.RegisterAll(registry)
+	php.RegisterAll(registry)
+	java.RegisterAll(registry)
 
 	return registry
 }

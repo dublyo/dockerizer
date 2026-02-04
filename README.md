@@ -15,7 +15,7 @@ AI-powered Docker configuration generator that creates production-ready Dockerfi
 - **Interactive Setup** - Guided CLI wizard for AI configuration and customization
 - **Build Plan** - Nixpacks-inspired plan command for debugging and transparency
 - **Procfile Support** - Respects Heroku-style Procfiles for start commands
-- **8+ Providers** - Node.js, Python, Go, Rust frameworks supported
+- **16 Providers** - Node.js, Python, Go, Rust, Ruby, PHP, Java frameworks supported
 - **Agent Mode** - Iterative analyze → generate → build → test → fix workflow
 - **MCP Server** - Integration with Claude Code and Goose AI assistants
 - **Recipe System** - YAML-based automation workflows
@@ -75,12 +75,13 @@ ANTHROPIC_API_KEY=sk-ant-xxx dockerizer --ai ./my-project
 
 | Language | Frameworks | Confidence |
 |----------|------------|------------|
-| **Node.js** | Next.js, Express | 95-100% |
+| **Node.js** | Next.js, NestJS, Nuxt, Express | 85-100% |
 | **Python** | Django, FastAPI, Flask | 90-100% |
-| **Go** | Gin, Fiber, Echo | 90% |
+| **Go** | Gin, Fiber, Echo, Standard | 90% |
 | **Rust** | Actix Web, Axum | 90% |
-
-*More frameworks coming soon: Nuxt, NestJS, Rails, Laravel, Spring Boot, and 15+ others*
+| **Ruby** | Rails | 85-90% |
+| **PHP** | Laravel | 85-90% |
+| **Java** | Spring Boot | 90-95% |
 
 ## Commands
 
@@ -362,11 +363,13 @@ make clean          # Remove build artifacts
 
 ## Roadmap
 
-- [ ] More Node.js frameworks (Nuxt, NestJS, Remix, Astro)
-- [ ] Ruby/Rails support
-- [ ] PHP/Laravel support
-- [ ] Java/Spring Boot support
+- [x] More Node.js frameworks (Nuxt, NestJS)
+- [x] Ruby/Rails support
+- [x] PHP/Laravel support
+- [x] Java/Spring Boot support
+- [ ] More Node.js frameworks (Remix, Astro, SvelteKit)
 - [ ] .NET/ASP.NET Core support
+- [ ] Elixir/Phoenix support
 - [ ] Kubernetes manifests generation
 - [ ] GitHub Actions integration
 - [ ] VS Code extension
