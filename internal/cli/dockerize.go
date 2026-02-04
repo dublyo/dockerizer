@@ -11,6 +11,8 @@ import (
 	"github.com/dublyo/dockerizer/internal/detector"
 	"github.com/dublyo/dockerizer/internal/generator"
 	"github.com/dublyo/dockerizer/internal/scanner"
+	"github.com/dublyo/dockerizer/providers/dotnet"
+	"github.com/dublyo/dockerizer/providers/elixir"
 	"github.com/dublyo/dockerizer/providers/golang"
 	"github.com/dublyo/dockerizer/providers/java"
 	"github.com/dublyo/dockerizer/providers/nodejs"
@@ -151,6 +153,8 @@ func setupRegistry() *detector.Registry {
 	ruby.RegisterAll(registry)
 	php.RegisterAll(registry)
 	java.RegisterAll(registry)
+	dotnet.RegisterAll(registry)
+	elixir.RegisterAll(registry)
 
 	return registry
 }
