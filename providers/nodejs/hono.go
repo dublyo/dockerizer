@@ -66,13 +66,16 @@ func (p *HonoProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (in
 	}
 
 	// Check for Bun (Hono is often used with Bun)
+	var pm string
 	if scan.FileTree.HasFile("bun.lockb") {
 		vars["runtime"] = "bun"
-		vars["packageManager"] = "bun"
+		pm = "bun"
 	} else {
 		vars["runtime"] = "node"
-		vars["packageManager"] = detectPackageManager(scan)
+		pm = detectPackageManager(scan)
 	}
+	vars["packageManager"] = pm
+	vars["hasLockFile"] = hasLockFile(scan, pm)
 
 	// Detect Node version
 	vars["nodeVersion"] = p.DetectVersion(scan)

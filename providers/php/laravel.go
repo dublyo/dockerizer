@@ -85,6 +85,9 @@ func (p *LaravelProvider) Detect(ctx context.Context, scan *scanner.ScanResult) 
 		score += 5
 	}
 
+	// Check for composer.lock
+	vars["hasLockFile"] = scan.FileTree.HasFile("composer.lock")
+
 	// Detect PHP version from require
 	vars["phpVersion"] = detectPhpVersion(scan, require)
 

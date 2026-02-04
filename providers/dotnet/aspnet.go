@@ -3,6 +3,7 @@ package dotnet
 import (
 	"context"
 	"encoding/xml"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -92,8 +93,10 @@ func (p *AspNetProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (
 			vars["hasEF"] = true
 		}
 
-		// Store project file name
+		// Store project file name and extract project name (without .csproj extension)
 		vars["projectFile"] = csprojFile
+		projectName := strings.TrimSuffix(filepath.Base(csprojFile), ".csproj")
+		vars["projectName"] = projectName
 		break
 	}
 
@@ -127,6 +130,21 @@ func (p *AspNetProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (
 	slnFiles := scan.FileTree.FilesWithExtension(".sln")
 	if len(slnFiles) > 0 {
 		vars["solutionFile"] = slnFiles[0]
+	}
+
+	// Store all .csproj files for multi-project restore
+	allCsprojFiles := scan.FileTree.FilesWithExtension(".csproj")
+	vars["allProjectFiles"] = allCsprojFiles
+	vars["isMultiProject"] = len(allCsprojFiles) > 1
+
+	// Check for Directory.Build.props (common in multi-project solutions)
+	if scan.FileTree.HasFile("Directory.Build.props") {
+		vars["hasDirectoryBuildProps"] = true
+	}
+
+	// Check for Directory.Packages.props (central package management)
+	if scan.FileTree.HasFile("Directory.Packages.props") {
+		vars["hasDirectoryPackagesProps"] = true
 	}
 
 	// Detect .NET version from global.json

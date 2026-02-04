@@ -14,9 +14,14 @@ import (
 	"github.com/dublyo/dockerizer/internal/detector"
 	"github.com/dublyo/dockerizer/internal/generator"
 	"github.com/dublyo/dockerizer/internal/scanner"
+	"github.com/dublyo/dockerizer/providers/dotnet"
+	"github.com/dublyo/dockerizer/providers/elixir"
 	"github.com/dublyo/dockerizer/providers/golang"
+	"github.com/dublyo/dockerizer/providers/java"
 	"github.com/dublyo/dockerizer/providers/nodejs"
+	"github.com/dublyo/dockerizer/providers/php"
 	"github.com/dublyo/dockerizer/providers/python"
+	"github.com/dublyo/dockerizer/providers/ruby"
 	"github.com/dublyo/dockerizer/providers/rust"
 )
 
@@ -363,6 +368,11 @@ func (t *DockrizerAnalyzeTool) Execute(ctx context.Context, args map[string]inte
 	python.RegisterAll(registry)
 	golang.RegisterAll(registry)
 	rust.RegisterAll(registry)
+	ruby.RegisterAll(registry)
+	php.RegisterAll(registry)
+	java.RegisterAll(registry)
+	dotnet.RegisterAll(registry)
+	elixir.RegisterAll(registry)
 
 	det := detector.New(registry)
 	result, err := det.Detect(ctx, scan)
@@ -424,6 +434,11 @@ func (t *DockrizerGenerateTool) Execute(ctx context.Context, args map[string]int
 	python.RegisterAll(registry)
 	golang.RegisterAll(registry)
 	rust.RegisterAll(registry)
+	ruby.RegisterAll(registry)
+	php.RegisterAll(registry)
+	java.RegisterAll(registry)
+	dotnet.RegisterAll(registry)
+	elixir.RegisterAll(registry)
 
 	det := detector.New(registry)
 	result, err := det.Detect(ctx, scan)

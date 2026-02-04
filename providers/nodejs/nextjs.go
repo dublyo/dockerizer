@@ -74,7 +74,9 @@ func (p *NextJSProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (
 	}
 
 	// Detect package manager
-	vars["packageManager"] = detectPackageManager(scan)
+	pm := detectPackageManager(scan)
+	vars["packageManager"] = pm
+	vars["hasLockFile"] = hasLockFile(scan, pm)
 
 	// Detect Node version
 	vars["nodeVersion"] = p.DetectVersion(scan)
@@ -181,6 +183,21 @@ func detectPackageManager(scan *scanner.ScanResult) string {
 
 	// Default to npm
 	return "npm"
+}
+
+// hasLockFile checks if a lock file exists for the detected package manager
+func hasLockFile(scan *scanner.ScanResult, packageManager string) bool {
+	switch packageManager {
+	case "pnpm":
+		return scan.FileTree.HasFile("pnpm-lock.yaml")
+	case "yarn":
+		return scan.FileTree.HasFile("yarn.lock")
+	case "bun":
+		return scan.FileTree.HasFile("bun.lockb")
+	case "npm":
+		return scan.FileTree.HasFile("package-lock.json")
+	}
+	return false
 }
 
 // detectPort determines the port the application will listen on

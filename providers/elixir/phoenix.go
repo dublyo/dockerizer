@@ -53,6 +53,12 @@ func (p *PhoenixProvider) Detect(ctx context.Context, scan *scanner.ScanResult) 
 		return 0, nil, nil // Not Phoenix
 	}
 
+	// Extract app name from mix.exs (pattern: app: :app_name)
+	appNameRe := regexp.MustCompile(`app:\s*:(\w+)`)
+	if matches := appNameRe.FindStringSubmatch(content); len(matches) > 1 {
+		vars["appName"] = matches[1]
+	}
+
 	// Check for phoenix_html
 	if strings.Contains(content, ":phoenix_html") {
 		score += 10

@@ -70,7 +70,9 @@ func (p *KoaProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (int
 	}
 
 	// Detect package manager
-	vars["packageManager"] = detectPackageManager(scan)
+	pm := detectPackageManager(scan)
+	vars["packageManager"] = pm
+	vars["hasLockFile"] = hasLockFile(scan, pm)
 
 	// Detect Node version
 	vars["nodeVersion"] = p.DetectVersion(scan)

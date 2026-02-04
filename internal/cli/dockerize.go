@@ -78,10 +78,23 @@ func executeDockerize(path, outputDir string, forceAI, overwrite, includeCompose
 	if !result.Detected {
 		if aiProvider == nil {
 			printInfo("")
-			printInfo("No stack detected. To use AI-powered detection:")
+			printInfo("Could not detect project stack.")
+			printInfo("")
+			printInfo("Common indicators looked for:")
+			printInfo("  Node.js:  package.json")
+			printInfo("  Python:   requirements.txt, pyproject.toml, setup.py")
+			printInfo("  Go:       go.mod")
+			printInfo("  Rust:     Cargo.toml")
+			printInfo("  Ruby:     Gemfile")
+			printInfo("  PHP:      composer.json")
+			printInfo("  Java:     pom.xml, build.gradle")
+			printInfo("  .NET:     *.csproj, *.fsproj")
+			printInfo("  Elixir:   mix.exs")
+			printInfo("")
+			printInfo("To use AI-powered detection:")
 			printInfo("  1. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or run Ollama locally")
 			printInfo("  2. Run with --ai flag: dockerizer --ai %s", path)
-			return outputError("no stack detected", fmt.Errorf("could not identify the project type; try using --ai with an API key"))
+			return outputError("no stack detected", fmt.Errorf("could not identify the project type; ensure project files exist or use --ai with an API key"))
 		}
 		printInfo("No stack detected, using AI generation...")
 	} else {

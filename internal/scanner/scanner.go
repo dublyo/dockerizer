@@ -54,7 +54,11 @@ func New(opts ...Option) Scanner {
 			".python-version":  {},
 			".ruby-version":    {},
 			".go-version":      {},
+			".java-version":    {},
+			".sdkmanrc":        {},
 			".tool-versions":   {},
+			".mise.toml":       {},
+			".rtx.toml":        {},
 			".env":             {},
 			".env.example":     {},
 			".env.local":       {},
@@ -63,6 +67,9 @@ func New(opts ...Option) Scanner {
 			".editorconfig":    {},
 			".gitignore":       {},
 			".dockerignore":    {},
+			".babelrc":         {},
+			".eslintrc":        {},
+			".prettierrc":      {},
 		},
 	}
 	for _, opt := range opts {
@@ -313,6 +320,9 @@ func (s *scanner) collectKeyFiles(ctx context.Context, root string, tree *FileTr
 		"composer.json",
 		"Gemfile",
 		"pom.xml",
+		"build.gradle",
+		"build.gradle.kts",
+		"mix.exs",
 		"Dockerfile",
 		"docker-compose.yml",
 		"docker-compose.yaml",
@@ -322,7 +332,10 @@ func (s *scanner) collectKeyFiles(ctx context.Context, root string, tree *FileTr
 		".node-version",
 		".python-version",
 		".ruby-version",
+		".java-version",
+		".sdkmanrc",
 		".tool-versions",
+		".mise.toml",
 		"Procfile",
 	}
 

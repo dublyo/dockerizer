@@ -1,0 +1,1667 @@
+# Dockerizer - AI-Powered Docker Configuration Generator
+Source: https://dockerizer.dev/ Made by https://Onpage.ai
+
+Generate production-ready Docker configurations in seconds
+
+Automatically detect your framework and create optimized Dockerfiles with AI-powered fallback
+
+26
+
+Frameworks
+
+9
+
+Languages
+
+90%+
+
+Detection Accuracy
+
+$ cd my-nextjs-app
+
+$ dockerizer
+
+Scanning project...
+
+Detected: Next.js (confidence: 95%)
+
+\- Node version: 20
+
+\- Package manager: npm
+
+\- TypeScript: yes
+
+Generating files...
+
+✓ Dockerfile
+
+✓ docker-compose.yml
+
+✓ .dockerignore
+
+Done! Run \`docker-compose up --build\` to start.
+
+`curl -fsSL https://dockerizer.dev/install.sh | sh`
+
+## Supported Frameworks
+
+Battle-tested templates for the most popular frameworks
+
+Next.js
+
+Remix
+
+Nuxt
+
+Astro
+
+SvelteKit
+
+NestJS
+
+Express
+
+Fastify
+
+Django
+
+FastAPI
+
+Flask
+
+Rails
+
+Laravel
+
+Symfony
+
+Spring Boot
+
+Quarkus
+
+ASP.NET
+
+Phoenix
+
+Go/Gin
+
+Rust/Actix
+
+## Features
+
+Everything you need for production-ready containers
+
+### 🔍 Smart Detection
+
+Automatically identifies your project's language, framework, and version with high confidence.
+
+-   Package file analysis (package.json, go.mod, etc.)
+-   Framework-specific config detection
+-   Confidence scoring system
+
+### 🤖 AI Fallback
+
+When detection is uncertain, leverage AI providers to generate accurate configurations.
+
+-   OpenAI, Anthropic, or Ollama support
+-   Works with any tech stack
+-   Context-aware generation
+
+### 🛡 Production Ready
+
+Generated Dockerfiles follow industry best practices for security and performance.
+
+-   Multi-stage builds
+-   Non-root users
+-   Health checks included
+
+### ⚡ Optimized Images
+
+Minimal final images with efficient layer caching for fast builds and deploys.
+
+-   Alpine/slim base images
+-   Dependency caching
+-   Production-only builds
+
+### 📦 Complete Output
+
+Generates everything needed to containerize your application.
+
+-   Dockerfile with best practices
+-   docker-compose.yml for orchestration
+-   .dockerignore for clean builds
+
+### 🔧 Easy Integration
+
+Works seamlessly in any development workflow or CI/CD pipeline.
+
+-   Single command execution
+-   CI/CD friendly flags
+-   Monorepo support
+
+## How It Works
+
+From project to container in three simple steps
+
+1
+
+### Scan
+
+Dockerizer analyzes your project files, dependencies, and configuration to understand your tech stack.
+
+2
+
+### Detect
+
+Using pattern matching and AI, it identifies your framework with confidence scoring for accuracy.
+
+3
+
+### Generate
+
+Creates optimized Docker configurations using battle-tested templates tailored to your framework.
+
+## Use Cases
+
+How teams use Dockerizer
+
+### Local Development
+
+Quickly containerize projects for consistent development environments across your team.
+
+```
+dockerizer && docker-compose up
+```
+
+### CI/CD Pipelines
+
+Automate Dockerfile generation in your deployment pipeline with quiet mode.
+
+```
+dockerizer --force --quiet
+docker build -t app:$SHA .
+```
+
+### Legacy Projects
+
+Add Docker support to existing projects without deep containerization knowledge.
+
+```
+cd legacy-app
+dockerizer --ai
+```
+
+### Microservices
+
+Generate configs for multiple services in a monorepo with a single pass.
+
+```
+dockerizer ./services/api
+dockerizer ./services/web
+```
+
+## Ready to containerize?
+
+Get started with Dockerizer and generate production-ready Docker configurations for your project.
+
+---
+
+# Dockerizer - AI-Powered Docker Configuration Generator
+Source: https://dockerizer.dev
+
+Generate production-ready Docker configurations in seconds
+
+Automatically detect your framework and create optimized Dockerfiles with AI-powered fallback
+
+26
+
+Frameworks
+
+9
+
+Languages
+
+90%+
+
+Detection Accuracy
+
+$ cd my-nextjs-app
+
+$ dockerizer
+
+Scanning project...
+
+Detected: Next.js (confidence: 95%)
+
+\- Node version: 20
+
+\- Package manager: npm
+
+\- TypeScript: yes
+
+Generating files...
+
+✓ Dockerfile
+
+✓ docker-compose.yml
+
+✓ .dockerignore
+
+Done! Run \`docker-compose up --build\` to start.
+
+`curl -fsSL https://dockerizer.dev/install.sh | sh`
+
+## Supported Frameworks
+
+Battle-tested templates for the most popular frameworks
+
+Next.js
+
+Remix
+
+Nuxt
+
+Astro
+
+SvelteKit
+
+NestJS
+
+Express
+
+Fastify
+
+Django
+
+FastAPI
+
+Flask
+
+Rails
+
+Laravel
+
+Symfony
+
+Spring Boot
+
+Quarkus
+
+ASP.NET
+
+Phoenix
+
+Go/Gin
+
+Rust/Actix
+
+## Features
+
+Everything you need for production-ready containers
+
+### 🔍 Smart Detection
+
+Automatically identifies your project's language, framework, and version with high confidence.
+
+-   Package file analysis (package.json, go.mod, etc.)
+-   Framework-specific config detection
+-   Confidence scoring system
+
+### 🤖 AI Fallback
+
+When detection is uncertain, leverage AI providers to generate accurate configurations.
+
+-   OpenAI, Anthropic, or Ollama support
+-   Works with any tech stack
+-   Context-aware generation
+
+### 🛡 Production Ready
+
+Generated Dockerfiles follow industry best practices for security and performance.
+
+-   Multi-stage builds
+-   Non-root users
+-   Health checks included
+
+### ⚡ Optimized Images
+
+Minimal final images with efficient layer caching for fast builds and deploys.
+
+-   Alpine/slim base images
+-   Dependency caching
+-   Production-only builds
+
+### 📦 Complete Output
+
+Generates everything needed to containerize your application.
+
+-   Dockerfile with best practices
+-   docker-compose.yml for orchestration
+-   .dockerignore for clean builds
+
+### 🔧 Easy Integration
+
+Works seamlessly in any development workflow or CI/CD pipeline.
+
+-   Single command execution
+-   CI/CD friendly flags
+-   Monorepo support
+
+## How It Works
+
+From project to container in three simple steps
+
+1
+
+### Scan
+
+Dockerizer analyzes your project files, dependencies, and configuration to understand your tech stack.
+
+2
+
+### Detect
+
+Using pattern matching and AI, it identifies your framework with confidence scoring for accuracy.
+
+3
+
+### Generate
+
+Creates optimized Docker configurations using battle-tested templates tailored to your framework.
+
+## Use Cases
+
+How teams use Dockerizer
+
+### Local Development
+
+Quickly containerize projects for consistent development environments across your team.
+
+```
+dockerizer && docker-compose up
+```
+
+### CI/CD Pipelines
+
+Automate Dockerfile generation in your deployment pipeline with quiet mode.
+
+```
+dockerizer --force --quiet
+docker build -t app:$SHA .
+```
+
+### Legacy Projects
+
+Add Docker support to existing projects without deep containerization knowledge.
+
+```
+cd legacy-app
+dockerizer --ai
+```
+
+### Microservices
+
+Generate configs for multiple services in a monorepo with a single pass.
+
+```
+dockerizer ./services/api
+dockerizer ./services/web
+```
+
+## Ready to containerize?
+
+Get started with Dockerizer and generate production-ready Docker configurations for your project.
+
+---
+
+# Getting Started - Dockerizer Documentation
+Source: https://dockerizer.dev/docs.html
+
+[Home](/) / Documentation
+
+Dockerizer is a CLI tool that automatically generates production-ready Docker configurations for your projects. It analyzes your codebase, detects the framework and language, and creates optimized Dockerfiles.
+
+## Installation
+
+### Quick Install (Recommended)
+
+Run the install script to download the latest version:
+
+```
+curl -fsSL https://dockerizer.dev/install.sh | sh
+```
+
+### Using npm
+
+Install globally via npm:
+
+```
+npm install -g @dublyo/dockerizer
+```
+
+### Using Go
+
+Install directly with Go:
+
+```
+go install github.com/dublyo/dockerizer@latest
+```
+
+### Manual Download
+
+Download pre-built binaries from the [GitHub Releases](https://github.com/dublyo/dockerizer/releases) page.
+
+## Quick Start
+
+### Step 1: Navigate to Your Project
+
+```
+cd /path/to/your/project
+```
+
+### Step 2: Run Dockerizer
+
+```
+dockerizer
+```
+
+Dockerizer will analyze your project and generate:
+
+-   `Dockerfile` - Multi-stage production build
+-   `docker-compose.yml` - Container orchestration
+-   `.dockerignore` - Optimized ignore patterns
+
+### Step 3: Build and Run
+
+```
+# Build the image
+docker build -t myapp .
+
+# Or use docker-compose
+docker-compose up --build
+```
+
+## How It Works
+
+### 1\. Scan
+
+Dockerizer scans your project files including package.json, requirements.txt, go.mod, Cargo.toml, Gemfile, composer.json, pom.xml, \*.csproj, mix.exs, and source files.
+
+### 2\. Detect
+
+Using pattern matching, it identifies your language, framework, and version with confidence scoring.
+
+### 3\. Generate
+
+Based on detection results, it generates optimized Docker configurations using battle-tested templates.
+
+## Detection Confidence
+
+Dockerizer uses a confidence scoring system:
+
+-   **90-100%** - High confidence, generates immediately
+-   **70-89%** - Good confidence, may prompt for confirmation
+-   **Below 70%** - Low confidence, uses AI fallback if configured
+
+**Tip:** Configure an AI provider (OpenAI, Anthropic, or Ollama) for better results with uncommon tech stacks. See [AI Configuration](/ai-config.html).
+
+## Generated Dockerfile Features
+
+All generated Dockerfiles include production best practices:
+
+-   **Multi-stage builds** - Smaller final images
+-   **Non-root user** - Enhanced security
+-   **Health checks** - Container monitoring
+-   **Optimized layers** - Better caching
+-   **Minimal base images** - Alpine or slim variants
+
+## Next Steps
+
+-   [Supported Frameworks](/frameworks.html) - See all supported languages and frameworks
+-   [CLI Reference](/cli.html) - Learn all available commands and flags
+-   [Examples](/examples.html) - Real-world usage examples
+-   [AI Configuration](/ai-config.html) - Set up AI fallback
+
+---
+
+# Supported Frameworks - Dockerizer
+Source: https://dockerizer.dev/frameworks.html
+
+[Home](/) / Frameworks
+
+Dockerizer provides optimized templates for 26 popular frameworks across 9 languages. Each template follows production best practices specific to that framework.
+
+Full support for JavaScript and TypeScript projects with automatic detection of package managers (npm, yarn, pnpm).
+
+#### Next.js
+
+React framework with SSR support
+
+-   Standalone output mode
+-   Static asset optimization
+-   Environment variables
+
+#### Nuxt
+
+Vue.js meta-framework
+
+-   Nuxt 3 support
+-   SSR/SSG modes
+-   Nitro server
+
+#### NestJS
+
+Enterprise Node.js framework
+
+-   TypeScript compilation
+-   Microservices ready
+-   Swagger integration
+
+#### Remix
+
+Full-stack React framework
+
+-   Vite integration
+-   Server-side rendering
+-   Nested routing
+
+#### Astro
+
+Content-driven web framework
+
+-   Static/SSR modes
+-   Island architecture
+-   Multi-framework
+
+#### SvelteKit
+
+Full-stack Svelte framework
+
+-   Node adapter
+-   File-based routing
+-   SSR support
+
+#### Hono
+
+Ultrafast web framework
+
+-   Bun/Node support
+-   Edge-ready
+-   TypeScript native
+
+#### Koa
+
+Elegant Node.js framework
+
+-   Async/await native
+-   Middleware cascade
+-   Modular design
+
+#### Fastify
+
+Fast, low overhead web framework
+
+-   Plugin architecture
+-   Schema validation
+-   TypeScript support
+
+#### Express.js
+
+Minimal web framework
+
+-   TypeScript support
+-   Production NODE\_ENV
+-   Health check endpoint
+
+### Node.js Dockerfile Features
+
+-   Multi-stage builds with separate builder and runner stages
+-   Automatic package manager detection (npm, yarn, pnpm)
+-   Production dependencies only in final image
+-   Non-root `nodejs` user for security
+-   Node.js LTS versions (18, 20, 22)
+
+Support for modern Python web frameworks with automatic detection of package managers (pip, poetry, pipenv).
+
+#### Django
+
+Full-stack web framework
+
+-   Gunicorn WSGI server
+-   Static file collection
+-   PostgreSQL support
+
+#### FastAPI
+
+Modern async API framework
+
+-   Uvicorn ASGI server
+-   Auto-generated OpenAPI
+-   Async support
+
+#### Flask
+
+Lightweight WSGI framework
+
+-   Gunicorn production server
+-   Blueprint support
+-   Extension detection
+
+### Python Dockerfile Features
+
+-   Slim base images for smaller footprint
+-   Virtual environment isolation
+-   Automatic WSGI/ASGI server selection
+-   Python 3.9-3.12 support
+-   Poetry and pipenv compatibility
+
+Support for Go web frameworks with optimized static binary compilation.
+
+#### Gin
+
+High-performance HTTP framework
+
+-   Zero allocation router
+-   Middleware support
+-   JSON validation
+
+#### Fiber
+
+Express-inspired framework
+
+-   Fasthttp engine
+-   Zero memory allocation
+-   WebSocket support
+
+#### Echo
+
+Minimalist web framework
+
+-   Optimized HTTP router
+-   Data binding
+-   HTTP/2 support
+
+#### Standard Library
+
+net/http based servers
+
+-   No external dependencies
+-   ServeMux detection
+-   Handler patterns
+
+### Go Dockerfile Features
+
+-   Static binary compilation with CGO\_ENABLED=0
+-   Scratch or Alpine final images (~10MB)
+-   ldflags for smaller binaries
+-   Go modules support
+-   Cross-compilation ready
+
+Support for Rust web frameworks with optimized release builds.
+
+#### Actix Web
+
+Powerful actor-based framework
+
+-   Async/await support
+-   WebSocket actors
+-   Type-safe extractors
+
+#### Axum
+
+Tokio-based web framework
+
+-   Tower middleware
+-   Type-safe routing
+-   Hyper integration
+
+### Rust Dockerfile Features
+
+-   cargo-chef for dependency caching
+-   Release builds with optimizations
+-   Debian slim final images
+-   SSL/TLS certificates included
+-   Minimal runtime dependencies
+
+Support for Ruby web frameworks with Bundler dependency management.
+
+#### Ruby on Rails
+
+Full-stack web framework
+
+-   Asset precompilation
+-   Puma production server
+-   Database migrations
+
+### Ruby Dockerfile Features
+
+-   Bundler dependency caching
+-   Asset pipeline compilation
+-   Non-root user for security
+-   Ruby 3.x support
+
+Support for PHP frameworks with Composer dependency management.
+
+#### Laravel
+
+Elegant PHP framework
+
+-   Nginx + PHP-FPM
+-   Queue workers
+-   Storage permissions
+
+#### Symfony
+
+Enterprise PHP framework
+
+-   Doctrine ORM
+-   Flex recipes
+-   Cache warmup
+
+### PHP Dockerfile Features
+
+-   PHP-FPM with Nginx
+-   Composer autoloader optimization
+-   OPcache enabled
+-   PHP 8.x support
+
+Support for Java frameworks with Maven and Gradle build tools.
+
+#### Spring Boot
+
+Enterprise Java framework
+
+-   Maven/Gradle support
+-   JRE runtime image
+-   Actuator health checks
+
+#### Quarkus
+
+Cloud-native Java framework
+
+-   Fast startup time
+-   Low memory footprint
+-   GraalVM native support
+
+### Java Dockerfile Features
+
+-   Multi-stage JDK build, JRE runtime
+-   Container-aware JVM options
+-   Eclipse Temurin base images
+-   Java 17/21 LTS support
+
+Support for .NET web frameworks with optimized SDK builds.
+
+#### ASP.NET Core
+
+Cross-platform web framework
+
+-   Kestrel server
+-   Entity Framework
+-   Minimal APIs
+
+### .NET Dockerfile Features
+
+-   SDK build, ASP.NET runtime
+-   Alpine-based images
+-   Self-contained publish
+-   .NET 6/7/8 support
+
+Support for Elixir web frameworks with Mix build tool.
+
+#### Phoenix
+
+Real-time web framework
+
+-   LiveView support
+-   Ecto migrations
+-   Release builds
+
+### Elixir Dockerfile Features
+
+-   Mix release compilation
+-   Alpine runtime images
+-   Asset compilation
+-   Elixir 1.14+ support
+
+## Detection Accuracy
+
+Detection confidence is based on multiple signals:
+
+Signal
+
+Weight
+
+Example
+
+Package manifest
+
++50
+
+`"next"` in package.json
+
+Framework import
+
++30
+
+`from fastapi import FastAPI`
+
+Config files
+
++20
+
+`next.config.js` present
+
+Directory structure
+
++10
+
+`app/` or `pages/` directory
+
+**Can't find your framework?** Dockerizer can use AI to generate configurations for any tech stack. See [AI Configuration](/ai-config.html).
+
+---
+
+# CLI Reference - Dockerizer
+Source: https://dockerizer.dev/cli.html
+
+[Home](/) / CLI Reference
+
+Complete reference for all Dockerizer commands, flags, and options.
+
+## Commands
+
+### `dockerizer`
+
+The default command. Analyzes the current directory and generates Docker configurations.
+
+```
+dockerizer [path] [flags]
+```
+
+Argument
+
+Description
+
+Default
+
+`path`
+
+Path to the project directory
+
+Current directory (`.`)
+
+### `dockerizer init`
+
+Interactive setup wizard. Guides you through configuration with prompts.
+
+```
+dockerizer init [path]
+```
+
+The wizard will ask about:
+
+-   Project type and framework
+-   Port configuration
+-   Environment variables
+-   Health check endpoints
+-   Docker Compose services
+
+### `dockerizer plan`
+
+Preview the generated configuration without writing files.
+
+```
+dockerizer plan [path]
+```
+
+Useful for reviewing what will be generated before committing.
+
+### `dockerizer detect`
+
+Only run detection without generating files. Shows detected framework and confidence.
+
+```
+dockerizer detect [path]
+```
+
+### `dockerizer version`
+
+Display version information.
+
+```
+dockerizer version [--json]
+```
+
+## Global Flags
+
+Flag
+
+Short
+
+Description
+
+`--help`
+
+`-h`
+
+Show help for any command
+
+`--verbose`
+
+`-v`
+
+Enable verbose output
+
+`--quiet`
+
+`-q`
+
+Suppress non-essential output
+
+`--force`
+
+`-f`
+
+Overwrite existing files without prompting
+
+`--no-compose`
+
+Skip docker-compose.yml generation
+
+`--no-ignore`
+
+Skip .dockerignore generation
+
+## AI Flags
+
+Flag
+
+Description
+
+`--ai`
+
+Force AI generation regardless of detection confidence
+
+`--ai-provider`
+
+AI provider to use: `openai`, `anthropic`, `ollama`
+
+`--ai-model`
+
+Specific model to use (e.g., `gpt-4`, `claude-3-sonnet`)
+
+## Output Flags
+
+Flag
+
+Description
+
+`--output`, `-o`
+
+Output directory for generated files
+
+`--stdout`
+
+Print Dockerfile to stdout instead of writing to file
+
+`--json`
+
+Output results in JSON format
+
+## Environment Variables
+
+Configure Dockerizer using environment variables:
+
+Variable
+
+Description
+
+`OPENAI_API_KEY`
+
+OpenAI API key for AI generation
+
+`ANTHROPIC_API_KEY`
+
+Anthropic API key for Claude models
+
+`OLLAMA_HOST`
+
+Ollama server URL (default: `http://localhost:11434`)
+
+`DOCKERIZER_AI_PROVIDER`
+
+Default AI provider
+
+`DOCKERIZER_AI_MODEL`
+
+Default AI model
+
+`DOCKERIZER_VERBOSE`
+
+Enable verbose mode (`true`/`false`)
+
+## Exit Codes
+
+Code
+
+Description
+
+`0`
+
+Success
+
+`1`
+
+General error
+
+`2`
+
+Detection failed (no framework detected)
+
+`3`
+
+AI generation failed
+
+`4`
+
+File write error
+
+## Examples
+
+### Basic Usage
+
+```
+# Generate for current directory
+dockerizer
+
+# Generate for specific path
+dockerizer /path/to/project
+
+# Preview without writing
+dockerizer plan
+```
+
+### With Flags
+
+```
+# Force overwrite existing files
+dockerizer --force
+
+# Only generate Dockerfile
+dockerizer --no-compose --no-ignore
+
+# Force AI generation
+dockerizer --ai --ai-provider openai
+
+# Output to stdout
+dockerizer --stdout
+```
+
+### Using Environment Variables
+
+```
+# Set API key and generate
+export OPENAI_API_KEY="sk-..."
+dockerizer --ai
+
+# Or inline
+OPENAI_API_KEY="sk-..." dockerizer --ai
+```
+
+**Need more examples?** Check out the [Examples](/examples.html) page for real-world usage scenarios.
+
+---
+
+# Examples - Dockerizer
+Source: https://dockerizer.dev/examples.html
+
+Real-world examples showing Dockerizer in action with different frameworks and configurations.
+
+## Quick Examples
+
+### Basic Generation
+
+```
+cd my-project
+dockerizer
+```
+
+### Preview First
+
+```
+dockerizer plan
+# Review output
+dockerizer
+```
+
+### Force AI
+
+```
+export OPENAI_API_KEY="sk-..."
+dockerizer --ai
+```
+
+### CI/CD Pipeline
+
+```
+dockerizer --force --quiet
+docker build -t app .
+```
+
+### Next.js Application
+
+Dockerizer automatically detects Next.js projects and generates optimized configurations with standalone output.
+
+Command
+
+```
+cd my-nextjs-app
+dockerizer
+```
+
+Detection Output
+
+```
+Scanning project...
+Detected: Next.js (confidence: 95%)
+  - Node version: 20
+  - Package manager: npm
+  - TypeScript: yes
+  - Output mode: standalone
+
+Generating files...
+  ✓ Dockerfile
+  ✓ docker-compose.yml
+  ✓ .dockerignore
+
+Done!
+```
+
+Generated Dockerfile
+
+```
+FROM node:20-alpine AS base
+
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+EXPOSE 3000
+ENV PORT=3000
+
+CMD ["node", "server.js"]
+```
+
+### FastAPI Application
+
+FastAPI projects are detected with uvicorn as the ASGI server.
+
+Command
+
+```
+cd my-fastapi-app
+dockerizer
+```
+
+Detection Output
+
+```
+Scanning project...
+Detected: FastAPI (confidence: 90%)
+  - Python version: 3.12
+  - Package manager: pip
+  - Main file: main.py
+  - ASGI server: uvicorn
+
+Generating files...
+  ✓ Dockerfile
+  ✓ docker-compose.yml
+  ✓ .dockerignore
+
+Done!
+```
+
+Generated Dockerfile
+
+```
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim AS runner
+
+WORKDIR /app
+
+RUN useradd --create-home --shell /bin/bash appuser
+
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY . .
+
+RUN chown -R appuser:appuser /app
+USER appuser
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+```
+
+### Gin (Go) Application
+
+Go projects are compiled to static binaries for minimal final images.
+
+Command
+
+```
+cd my-gin-app
+dockerizer
+```
+
+Generated Dockerfile
+
+```
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+RUN apk add --no-cache git ca-certificates
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/server .
+
+FROM alpine:latest
+
+WORKDIR /app
+
+RUN apk --no-cache add ca-certificates
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=builder /app/server /app/server
+
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+EXPOSE 8080
+
+CMD ["/app/server"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+```
+
+### Django Application
+
+Django projects include static file collection and Gunicorn WSGI server.
+
+Command
+
+```
+cd my-django-app
+dockerizer
+```
+
+Generated docker-compose.yml
+
+```
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=0
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/app
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+```
+
+## Advanced Examples
+
+### Custom Output Directory
+
+```
+# Generate files in a specific directory
+dockerizer --output ./docker
+
+# Results in:
+# ./docker/Dockerfile
+# ./docker/docker-compose.yml
+# ./docker/.dockerignore
+```
+
+### AI-Powered Generation
+
+```
+# When detection confidence is low or for unknown frameworks
+export ANTHROPIC_API_KEY="sk-ant-..."
+dockerizer --ai --ai-provider anthropic
+
+# Or with OpenAI
+export OPENAI_API_KEY="sk-..."
+dockerizer --ai --ai-provider openai --ai-model gpt-4
+```
+
+### CI/CD Integration
+
+```
+# GitHub Actions example
+- name: Generate Dockerfile
+  run: |
+    curl -fsSL https://dockerizer.dev/install.sh | sh
+    dockerizer --force --quiet
+
+- name: Build and Push
+  run: |
+    docker build -t myapp:${{ github.sha }} .
+    docker push myapp:${{ github.sha }}
+```
+
+### Monorepo Setup
+
+```
+# Generate for specific service in monorepo
+dockerizer ./services/api
+dockerizer ./services/web
+dockerizer ./services/worker
+```
+
+---
+
+# AI Configuration - Dockerizer
+Source: https://dockerizer.dev/ai-config.html
+
+[Home](/) / AI Configuration
+
+Dockerizer can use AI to generate Docker configurations when automatic detection fails or for unsupported frameworks. This page explains how to configure different AI providers.
+
+## When Is AI Used?
+
+AI generation is triggered in these scenarios:
+
+-   **Low confidence detection** - When framework detection confidence is below 70%
+-   **Unknown frameworks** - Languages or frameworks without built-in templates
+-   **Forced AI mode** - When using the `--ai` flag
+-   **Complex setups** - Monorepos or multi-service architectures
+
+## Supported Providers
+
+### Anthropic Claude Recommended
+
+Claude models provide excellent Docker configuration generation with deep understanding of containerization best practices.
+
+#### Setup
+
+```
+export ANTHROPIC_API_KEY="sk-ant-api03-..."
+```
+
+#### Usage
+
+```
+# Use Claude (default model)
+dockerizer --ai --ai-provider anthropic
+
+# Specify model
+dockerizer --ai --ai-provider anthropic --ai-model claude-sonnet-4-20250514
+```
+
+Model
+
+Best For
+
+`claude-sonnet-4-20250514`
+
+Balanced speed and quality (default)
+
+`claude-opus-4-20250514`
+
+Complex configurations, best quality
+
+`claude-haiku-3-20250514`
+
+Fast generation, simple projects
+
+### OpenAI GPT
+
+OpenAI models are widely used and provide reliable Docker configuration generation.
+
+#### Setup
+
+```
+export OPENAI_API_KEY="sk-proj-..."
+```
+
+#### Usage
+
+```
+# Use OpenAI (default model)
+dockerizer --ai --ai-provider openai
+
+# Specify model
+dockerizer --ai --ai-provider openai --ai-model gpt-4o
+```
+
+Model
+
+Best For
+
+`gpt-4o`
+
+Best quality, multimodal (default)
+
+`gpt-4o-mini`
+
+Faster, cost-effective
+
+`o1`
+
+Advanced reasoning for complex setups
+
+### Ollama Local
+
+Run AI locally without sending code to external services. Great for privacy-sensitive projects.
+
+#### Setup
+
+```
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull a model
+ollama pull llama3.2
+
+# Ollama runs on localhost by default
+# Optional: set custom host
+export OLLAMA_HOST="http://localhost:11434"
+```
+
+#### Usage
+
+```
+# Use Ollama with default model
+dockerizer --ai --ai-provider ollama
+
+# Specify model
+dockerizer --ai --ai-provider ollama --ai-model codellama
+```
+
+Model
+
+Best For
+
+`llama3.2`
+
+General purpose (default)
+
+`codellama`
+
+Code-focused tasks
+
+`deepseek-coder`
+
+Specialized coding model
+
+## Environment Variables
+
+Configure AI settings via environment variables:
+
+Variable
+
+Description
+
+Example
+
+`ANTHROPIC_API_KEY`
+
+Anthropic API key
+
+`sk-ant-api03-...`
+
+`OPENAI_API_KEY`
+
+OpenAI API key
+
+`sk-proj-...`
+
+`OLLAMA_HOST`
+
+Ollama server URL
+
+`http://localhost:11434`
+
+`DOCKERIZER_AI_PROVIDER`
+
+Default provider
+
+`anthropic`
+
+`DOCKERIZER_AI_MODEL`
+
+Default model
+
+`claude-sonnet-4-20250514`
+
+## Configuration File
+
+Create a `.dockerizer.yml` in your home directory or project root:
+
+```
+# ~/.dockerizer.yml
+ai:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+
+# Or for OpenAI
+ai:
+  provider: openai
+  model: gpt-4o
+
+# Or for local Ollama
+ai:
+  provider: ollama
+  host: http://localhost:11434
+  model: llama3.2
+```
+
+## Provider Priority
+
+Dockerizer checks for AI providers in this order:
+
+1.  Command-line flags (`--ai-provider`)
+2.  Environment variable (`DOCKERIZER_AI_PROVIDER`)
+3.  Configuration file (`.dockerizer.yml`)
+4.  Auto-detect based on available API keys
+
+## Best Practices
+
+**Security Tip:** Never commit API keys to version control. Use environment variables or a `.env` file (added to `.gitignore`).
+
+-   **Start with detection** - Let Dockerizer try automatic detection first. Only use AI when needed.
+-   **Review generated configs** - Always review AI-generated Dockerfiles before using in production.
+-   **Use local models for sensitive code** - If your code is proprietary, consider Ollama for local processing.
+-   **Set defaults** - Configure your preferred provider in `~/.dockerizer.yml` to avoid repeated flags.
+
+## Troubleshooting
+
+### API Key Issues
+
+```
+# Verify API key is set
+echo $ANTHROPIC_API_KEY
+echo $OPENAI_API_KEY
+
+# Test with verbose output
+dockerizer --ai --verbose
+```
+
+### Ollama Connection Issues
+
+```
+# Check if Ollama is running
+curl http://localhost:11434/api/tags
+
+# Restart Ollama
+ollama serve
+```
+
+### Model Not Found
+
+```
+# List available Ollama models
+ollama list
+
+# Pull missing model
+ollama pull llama3.2
+```

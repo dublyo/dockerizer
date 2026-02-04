@@ -439,9 +439,14 @@ services:
     environment:
       - NODE_ENV=production
 
-    # Health Check (uses wget which is available in Alpine)
+    # Health Check (defaults to root endpoint; change to /health if your app has a health endpoint)
+    # If using non-Alpine base, replace wget with: curl -sf http://localhost:PORT/ || exit 1
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:{{.port | default "3000"}}/health"]
+{{if eq .language "python"}}
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default \"3000\"}}/')"]
+{{else}}
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:{{.port | default \"3000\"}}/"]
+{{end}}
       interval: 30s
       timeout: 10s
       retries: 3
@@ -613,27 +618,27 @@ WORKDIR /app
 {{if eq .packageManager "pnpm"}}
 # Enable pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
 {{else if eq .packageManager "bun"}}
 # Install bun
 RUN npm install -g bun
-COPY bun.lockb ./
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
 {{else if eq .packageManager "bun"}}
-RUN bun install --frozen-lockfile
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 # Copy source
@@ -652,7 +657,11 @@ RUN npm run build
 {{end}}
 
 # Production stage
+{{if eq .packageManager "bun"}}
+FROM oven/bun:1-alpine AS runner
+{{else}}
 FROM node:{{.nodeVersion | default "20"}}-alpine AS runner
+{{end}}
 
 WORKDIR /app
 
@@ -675,7 +684,11 @@ EXPOSE {{.port | default "3000"}}
 ENV PORT={{.port | default "3000"}}
 ENV HOSTNAME="0.0.0.0"
 
+{{if eq .packageManager "bun"}}
+CMD ["bun", "run", "server.js"]
+{{else}}
 CMD ["node", "server.js"]
+{{end}}
 {{else}}
 # Copy build output
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
@@ -689,6 +702,7 @@ EXPOSE {{.port | default "3000"}}
 ENV PORT={{.port | default "3000"}}
 
 {{if eq .packageManager "pnpm"}}
+RUN corepack enable && corepack prepare pnpm@latest --activate
 CMD ["pnpm", "start"]
 {{else if eq .packageManager "yarn"}}
 CMD ["yarn", "start"]
@@ -701,7 +715,7 @@ CMD ["npm", "start"]
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/api/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 const expressTemplate = `# ============================================
@@ -718,22 +732,26 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 COPY tsconfig.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -742,6 +760,8 @@ COPY . .
 RUN pnpm build
 {{else if eq .packageManager "yarn"}}
 RUN yarn build
+{{else if eq .packageManager "bun"}}
+RUN bun run build
 {{else}}
 RUN npm run build
 {{end}}
@@ -759,22 +779,26 @@ RUN adduser --system --uid 1001 expressjs
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/dist ./dist
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER expressjs
@@ -797,21 +821,25 @@ RUN adduser --system --uid 1001 expressjs
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 COPY . .
@@ -826,7 +854,7 @@ CMD ["node", "{{.mainFile | default "index.js"}}"]
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Django template
@@ -856,6 +884,10 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev --no-inter
 RUN pip install pipenv
 COPY Pipfile Pipfile.lock* ./
 RUN pipenv install --system --deploy --ignore-pipfile
+{{else if eq .packageManager "uv"}}
+RUN pip install uv
+COPY pyproject.toml uv.lock* ./
+RUN uv pip install --system --no-cache .
 {{else}}
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
@@ -902,7 +934,7 @@ CMD ["gunicorn", "--bind", "0.0.0.0:{{.port | default "8000"}}", "--workers", "2
 {{end}}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default "8000"}}/health')" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default \"8000\"}}/')" || exit 1
 `
 
 // FastAPI template
@@ -929,6 +961,10 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev --no-inter
 RUN pip install pipenv
 COPY Pipfile Pipfile.lock* ./
 RUN pipenv install --system --deploy --ignore-pipfile
+{{else if eq .packageManager "uv"}}
+RUN pip install uv
+COPY pyproject.toml uv.lock* ./
+RUN uv pip install --system --no-cache .
 {{else}}
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
@@ -949,7 +985,7 @@ EXPOSE {{.port | default "8000"}}
 CMD ["uvicorn", "{{.moduleName | default "main"}}:app", "--host", "0.0.0.0", "--port", "{{.port | default "8000"}}"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default "8000"}}/health')" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default \"8000\"}}/')" || exit 1
 `
 
 // Flask template
@@ -976,6 +1012,10 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev --no-inter
 RUN pip install pipenv
 COPY Pipfile Pipfile.lock* ./
 RUN pipenv install --system --deploy --ignore-pipfile
+{{else if eq .packageManager "uv"}}
+RUN pip install uv
+COPY pyproject.toml uv.lock* ./
+RUN uv pip install --system --no-cache .
 {{else}}
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
@@ -1002,7 +1042,7 @@ CMD ["gunicorn", "--bind", "0.0.0.0:{{.port | default "5000"}}", "--workers", "2
 {{end}}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default "5000"}}/health')" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default \"5000\"}}/')" || exit 1
 `
 
 // Gin template
@@ -1054,7 +1094,7 @@ EXPOSE {{.port | default "8080"}}
 CMD ["/app/server"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/ || exit 1
 `
 
 // Fiber template
@@ -1105,7 +1145,7 @@ EXPOSE {{.port | default "3000"}}
 CMD ["/app/server"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Echo template
@@ -1149,7 +1189,7 @@ EXPOSE {{.port | default "8080"}}
 CMD ["/app/server"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/ || exit 1
 `
 
 // Go standard library template
@@ -1193,7 +1233,7 @@ EXPOSE {{.port | default "8080"}}
 CMD ["/app/server"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/ || exit 1
 `
 
 // Actix template
@@ -1255,7 +1295,7 @@ EXPOSE {{.port | default "8080"}}
 CMD ["/app/server"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:{{.port | default "8080"}}/health || exit 1
+  CMD curl -f http://localhost:{{.port | default "8080"}}/ || exit 1
 `
 
 // Axum template
@@ -1309,7 +1349,7 @@ EXPOSE {{.port | default "8080"}}
 CMD ["/app/server"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:{{.port | default "8080"}}/health || exit 1
+  CMD curl -f http://localhost:{{.port | default "8080"}}/ || exit 1
 `
 
 // Ruby dockerignore
@@ -1450,22 +1490,26 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 COPY tsconfig*.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -1474,6 +1518,8 @@ COPY . .
 RUN pnpm build
 {{else if eq .packageManager "yarn"}}
 RUN yarn build
+{{else if eq .packageManager "bun"}}
+RUN bun run build
 {{else}}
 RUN npm run build
 {{end}}
@@ -1491,22 +1537,26 @@ RUN adduser --system --uid 1001 nestjs
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/dist ./dist
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER nestjs
@@ -1517,7 +1567,7 @@ ENV PORT={{.port | default "3000"}}
 CMD ["node", "dist/main.js"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Nuxt template
@@ -1534,21 +1584,25 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -1557,6 +1611,8 @@ COPY . .
 RUN pnpm build
 {{else if eq .packageManager "yarn"}}
 RUN yarn build
+{{else if eq .packageManager "bun"}}
+RUN bun run build
 {{else}}
 RUN npm run build
 {{end}}
@@ -1599,7 +1655,7 @@ CMD ["npm", "start"]
 {{end}}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Rails template
@@ -1672,7 +1728,7 @@ EXPOSE {{.port | default "3000"}}
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "{{.port | default "3000"}}"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD curl -f http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Laravel template
@@ -1703,13 +1759,18 @@ RUN apk add --no-cache \
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Copy composer files
-COPY composer.json composer.lock ./
+COPY composer.json ./
+{{if .hasLockFile}}COPY composer.lock ./{{end}}
 
 # Install dependencies
+{{if .hasLockFile}}
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+{{else}}
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+{{end}}
 
 # Copy application
 COPY . .
@@ -1719,9 +1780,9 @@ RUN composer dump-autoload --optimize
 
 {{if .hasVite}}
 # Build frontend assets
-RUN npm ci && npm run build
+RUN npm install && npm run build
 {{else if .hasMix}}
-RUN npm ci && npm run production
+RUN npm install && npm run production
 {{end}}
 
 # Production stage
@@ -1786,7 +1847,7 @@ EXPOSE {{.port | default "8000"}}
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:{{.port | default "8000"}}/health || exit 1
+  CMD curl -f http://localhost:{{.port | default "8000"}}/ || exit 1
 `
 
 // Spring Boot template
@@ -1800,36 +1861,70 @@ const springbootTemplate = `# ============================================
 # Build stage (Maven)
 FROM eclipse-temurin:{{.javaVersion | default "21"}}-jdk-alpine AS builder
 
+{{if not .hasWrapper}}
+# Install Maven
+RUN apk add --no-cache maven
+{{end}}
+
 WORKDIR /app
 
+{{if .hasWrapper}}
 # Copy Maven wrapper and pom
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
+RUN chmod +x ./mvnw
+{{else}}
+COPY pom.xml ./
+{{end}}
 
 # Download dependencies
-RUN chmod +x ./mvnw && ./mvnw dependency:go-offline -B
+{{if .hasWrapper}}
+RUN ./mvnw dependency:go-offline -B
+{{else}}
+RUN mvn dependency:go-offline -B
+{{end}}
 
 # Copy source and build
 COPY src ./src
+{{if .hasWrapper}}
 RUN ./mvnw package -DskipTests -B
+{{else}}
+RUN mvn package -DskipTests -B
+{{end}}
 
 {{else}}
 # Build stage (Gradle)
 FROM eclipse-temurin:{{.javaVersion | default "21"}}-jdk-alpine AS builder
 
+{{if not .hasWrapper}}
+# Install Gradle
+RUN apk add --no-cache gradle
+{{end}}
+
 WORKDIR /app
 
+{{if .hasWrapper}}
 # Copy Gradle wrapper and build files
 COPY gradlew ./
 COPY gradle ./gradle
+RUN chmod +x ./gradlew
+{{end}}
 COPY build.gradle* settings.gradle* ./
 
 # Download dependencies
-RUN chmod +x ./gradlew && ./gradlew dependencies --no-daemon
+{{if .hasWrapper}}
+RUN ./gradlew dependencies --no-daemon
+{{else}}
+RUN gradle dependencies --no-daemon
+{{end}}
 
 # Copy source and build
 COPY src ./src
+{{if .hasWrapper}}
 RUN ./gradlew bootJar --no-daemon -x test
+{{else}}
+RUN gradle bootJar --no-daemon -x test
+{{end}}
 
 {{end}}
 
@@ -1879,21 +1974,25 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -1912,11 +2011,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 remix
 
 {{if eq .packageManager "pnpm"}}
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
@@ -1925,11 +2026,13 @@ COPY --from=builder /app/public ./public
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER remix
@@ -1940,7 +2043,7 @@ ENV PORT={{.port | default "3000"}}
 CMD ["npm", "start"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Astro template
@@ -1958,21 +2061,25 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -2011,21 +2118,25 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -2045,11 +2156,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 astro
 
 {{if eq .packageManager "pnpm"}}
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
@@ -2057,11 +2170,13 @@ COPY --from=builder /app/dist ./dist
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER astro
@@ -2090,21 +2205,25 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -2123,11 +2242,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 sveltekit
 
 {{if eq .packageManager "pnpm"}}
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
@@ -2135,11 +2256,13 @@ COPY --from=builder /app/build ./build
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER sveltekit
@@ -2166,8 +2289,9 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
-COPY bun.lockb package.json ./
-RUN bun install --frozen-lockfile
+COPY package.json ./
+{{if .hasLockFile}}COPY bun.lockb ./
+RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 
 COPY . .
 {{if .typescript}}
@@ -2206,21 +2330,25 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json tsconfig*.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -2239,11 +2367,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 hono
 
 {{if eq .packageManager "pnpm"}}
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
@@ -2255,11 +2385,13 @@ COPY --from=builder /app/src ./src
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER hono
@@ -2275,7 +2407,7 @@ CMD ["node", "{{.mainEntry | default "src/index.js"}}"]
 {{end}}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Koa template
@@ -2292,11 +2424,13 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
@@ -2305,11 +2439,13 @@ COPY tsconfig*.json ./
 {{end}}
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -2330,11 +2466,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 koa
 
 {{if eq .packageManager "pnpm"}}
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
@@ -2347,11 +2485,13 @@ COPY --from=builder /app/*.js ./
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER koa
@@ -2368,7 +2508,7 @@ CMD ["node", "{{.mainEntry | default "app.js"}}"]
 {{end}}
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Symfony template
@@ -2398,13 +2538,19 @@ RUN apk add --no-cache \
 RUN docker-php-ext-install pdo_mysql mbstring intl opcache
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Copy composer files
-COPY composer.json composer.lock symfony.lock ./
+COPY composer.json ./
+{{if .hasLockFile}}COPY composer.lock ./{{end}}
+{{if .hasSymfonyLock}}COPY symfony.lock ./{{end}}
 
 # Install dependencies
+{{if .hasLockFile}}
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+{{else}}
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+{{end}}
 
 # Copy application
 COPY . .
@@ -2515,20 +2661,32 @@ FROM mcr.microsoft.com/dotnet/sdk:{{.dotnetVersion | default "8.0"}}-alpine AS b
 
 WORKDIR /src
 
-# Copy project files
 {{if .solutionFile}}
-COPY {{.solutionFile}} ./
-{{end}}
-COPY *.csproj ./
-
-# Restore dependencies
+# Multi-project solution: copy all files for restore (preserves project structure)
+{{if .hasDirectoryBuildProps}}COPY Directory.Build.props ./
+{{end}}{{if .hasDirectoryPackagesProps}}COPY Directory.Packages.props ./
+{{end}}COPY . .
+RUN dotnet restore {{.solutionFile}}
+{{else}}
+# Single project: optimized layer caching
+{{if .hasDirectoryBuildProps}}COPY Directory.Build.props ./
+{{end}}{{if .hasDirectoryPackagesProps}}COPY Directory.Packages.props ./
+{{end}}{{if .projectFile}}COPY {{.projectFile}} ./{{.projectFile}}
+RUN dotnet restore {{.projectFile}}
+{{else}}COPY *.csproj ./
 RUN dotnet restore
+{{end}}
 
 # Copy all source files
 COPY . .
+{{end}}
 
 # Build and publish
+{{if .projectFile}}
+RUN dotnet publish {{.projectFile}} -c Release -o /app/publish --no-restore
+{{else}}
 RUN dotnet publish -c Release -o /app/publish --no-restore
+{{end}}
 
 # Production stage
 FROM mcr.microsoft.com/dotnet/aspnet:{{.dotnetVersion | default "8.0"}}-alpine AS runner
@@ -2557,7 +2715,7 @@ EXPOSE {{.port | default "8080"}}
 ENTRYPOINT ["dotnet", "{{.projectName | default "app"}}.dll"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "8080"}}/ || exit 1
 `
 
 // Phoenix template
@@ -2656,22 +2814,26 @@ WORKDIR /app
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 COPY tsconfig.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile{{else}}RUN pnpm install{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile{{else}}RUN yarn install{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile{{else}}RUN bun install{{end}}
 {{else}}
-RUN npm ci
+{{if .hasLockFile}}RUN npm ci{{else}}RUN npm install{{end}}
 {{end}}
 
 COPY . .
@@ -2680,6 +2842,8 @@ COPY . .
 RUN pnpm build
 {{else if eq .packageManager "yarn"}}
 RUN yarn build
+{{else if eq .packageManager "bun"}}
+RUN bun run build
 {{else}}
 RUN npm run build
 {{end}}
@@ -2697,22 +2861,26 @@ RUN adduser --system --uid 1001 fastify
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY --from=builder /app/pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY --from=builder /app/pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY --from=builder /app/yarn.lock ./
+{{if .hasLockFile}}COPY --from=builder /app/yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY --from=builder /app/bun.lockb ./{{end}}
 {{else}}
-COPY --from=builder /app/package-lock.json ./
+{{if .hasLockFile}}COPY --from=builder /app/package-lock.json ./{{end}}
 {{end}}
 
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/dist ./dist
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 USER fastify
@@ -2735,21 +2903,25 @@ RUN adduser --system --uid 1001 fastify
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml ./
+{{if .hasLockFile}}COPY pnpm-lock.yaml ./{{end}}
 {{else if eq .packageManager "yarn"}}
-COPY yarn.lock ./
+{{if .hasLockFile}}COPY yarn.lock ./{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}COPY bun.lockb ./{{end}}
 {{else}}
-COPY package-lock.json ./
+{{if .hasLockFile}}COPY package-lock.json ./{{end}}
 {{end}}
 
 COPY package.json ./
 
 {{if eq .packageManager "pnpm"}}
-RUN pnpm install --frozen-lockfile --prod
+{{if .hasLockFile}}RUN pnpm install --frozen-lockfile --prod{{else}}RUN pnpm install --prod{{end}}
 {{else if eq .packageManager "yarn"}}
-RUN yarn install --frozen-lockfile --production
+{{if .hasLockFile}}RUN yarn install --frozen-lockfile --production{{else}}RUN yarn install --production{{end}}
+{{else if eq .packageManager "bun"}}
+{{if .hasLockFile}}RUN bun install --frozen-lockfile --production{{else}}RUN bun install --production{{end}}
 {{else}}
-RUN npm ci --only=production
+{{if .hasLockFile}}RUN npm ci --only=production{{else}}RUN npm install --production{{end}}
 {{end}}
 
 COPY . .
@@ -2768,7 +2940,7 @@ CMD ["node", "{{.mainFile | default "index.js"}}"]
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:{{.port | default "3000"}}/ || exit 1
 `
 
 // Quarkus template
@@ -2782,36 +2954,70 @@ const quarkusTemplate = `# ============================================
 # Build stage (Maven)
 FROM eclipse-temurin:{{.javaVersion | default "21"}}-jdk-alpine AS builder
 
+{{if not .hasWrapper}}
+# Install Maven
+RUN apk add --no-cache maven
+{{end}}
+
 WORKDIR /app
 
+{{if .hasWrapper}}
 # Copy Maven wrapper and pom
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
+RUN chmod +x ./mvnw
+{{else}}
+COPY pom.xml ./
+{{end}}
 
 # Download dependencies
-RUN chmod +x ./mvnw && ./mvnw dependency:go-offline -B
+{{if .hasWrapper}}
+RUN ./mvnw dependency:go-offline -B
+{{else}}
+RUN mvn dependency:go-offline -B
+{{end}}
 
 # Copy source and build
 COPY src ./src
+{{if .hasWrapper}}
 RUN ./mvnw package -DskipTests -B
+{{else}}
+RUN mvn package -DskipTests -B
+{{end}}
 
 {{else}}
 # Build stage (Gradle)
 FROM eclipse-temurin:{{.javaVersion | default "21"}}-jdk-alpine AS builder
 
+{{if not .hasWrapper}}
+# Install Gradle
+RUN apk add --no-cache gradle
+{{end}}
+
 WORKDIR /app
 
+{{if .hasWrapper}}
 # Copy Gradle wrapper and build files
 COPY gradlew ./
 COPY gradle ./gradle
+RUN chmod +x ./gradlew
+{{end}}
 COPY build.gradle* settings.gradle* ./
 
 # Download dependencies
-RUN chmod +x ./gradlew && ./gradlew dependencies --no-daemon
+{{if .hasWrapper}}
+RUN ./gradlew dependencies --no-daemon
+{{else}}
+RUN gradle dependencies --no-daemon
+{{end}}
 
 # Copy source and build
 COPY src ./src
+{{if .hasWrapper}}
 RUN ./gradlew build -x test --no-daemon
+{{else}}
+RUN gradle build -x test --no-daemon
+{{end}}
 
 {{end}}
 

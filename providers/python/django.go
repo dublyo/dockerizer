@@ -3,6 +3,7 @@ package python
 
 import (
 	"context"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -54,19 +55,46 @@ func (p *DjangoProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (
 		}
 	}
 
-	// Check for settings.py or <project>/settings.py
+	// Check for settings.py or <project>/settings.py and extract project name
 	settingsFiles := scan.FileTree.FilesMatching("settings.py")
 	if len(settingsFiles) > 0 {
 		score += 20
+		// Extract project name from settings.py path (e.g., "myproject/settings.py" -> "myproject")
+		// Convert filepath to Python module path (e.g., "src/myproj" -> "src.myproj")
+		for _, sf := range settingsFiles {
+			dir := filepath.Dir(sf)
+			if dir != "." && dir != "" {
+				vars["projectName"] = strings.ReplaceAll(dir, "/", ".")
+				break
+			}
+		}
 	}
 
-	// Check for wsgi.py or asgi.py
-	if hasWSGIorASGI(scan) {
+	// Check for wsgi.py or asgi.py and extract project name if not found
+	wsgiFiles := scan.FileTree.FilesMatching("wsgi.py")
+	asgiFiles := scan.FileTree.FilesMatching("asgi.py")
+	if len(wsgiFiles) > 0 || len(asgiFiles) > 0 {
 		score += 10
+		// If projectName not set, try to get it from wsgi/asgi path
+		if _, ok := vars["projectName"]; !ok {
+			allFiles := append(wsgiFiles, asgiFiles...)
+			for _, f := range allFiles {
+				dir := filepath.Dir(f)
+				if dir != "." && dir != "" {
+					vars["projectName"] = strings.ReplaceAll(dir, "/", ".")
+					break
+				}
+			}
+		}
 	}
 
 	if score == 0 {
 		return 0, nil, nil
+	}
+
+	// Default project name if not detected
+	if _, ok := vars["projectName"]; !ok {
+		vars["projectName"] = "config"
 	}
 
 	// Detect Python version

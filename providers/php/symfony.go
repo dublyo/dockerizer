@@ -64,9 +64,13 @@ func (p *SymfonyProvider) Detect(ctx context.Context, scan *scanner.ScanResult) 
 	}
 
 	// Check for symfony.lock
-	if scan.FileTree.HasFile("symfony.lock") {
+	hasSymfonyLock := scan.FileTree.HasFile("symfony.lock")
+	hasComposerLock := scan.FileTree.HasFile("composer.lock")
+	if hasSymfonyLock {
 		score += 15
 	}
+	vars["hasLockFile"] = hasComposerLock
+	vars["hasSymfonyLock"] = hasSymfonyLock
 
 	// Check for Symfony CLI config
 	if scan.FileTree.HasFile(".symfony.local.yaml") || scan.FileTree.HasFile(".symfony/services.yaml") {
