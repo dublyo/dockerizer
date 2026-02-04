@@ -15,7 +15,7 @@ AI-powered Docker configuration generator that creates production-ready Dockerfi
 - **Interactive Setup** - Guided CLI wizard for AI configuration and customization
 - **Build Plan** - Nixpacks-inspired plan command for debugging and transparency
 - **Procfile Support** - Respects Heroku-style Procfiles for start commands
-- **24 Providers** - Node.js, Python, Go, Rust, Ruby, PHP, Java, .NET, Elixir frameworks supported
+- **26 Providers** - Node.js, Python, Go, Rust, Ruby, PHP, Java, .NET, Elixir frameworks supported
 - **Agent Mode** - Iterative analyze → generate → build → test → fix workflow
 - **MCP Server** - Integration with Claude Code and Goose AI assistants
 - **Recipe System** - YAML-based automation workflows

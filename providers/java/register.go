@@ -7,9 +7,9 @@ import (
 // RegisterAll registers all Java providers with the registry
 func RegisterAll(registry *detector.Registry) {
 	// Register in order of specificity
+	registry.Register(NewQuarkusProvider())
 	registry.Register(NewSpringBootProvider())
 	// Future providers:
-	// registry.Register(NewQuarkusProvider())
 	// registry.Register(NewMicronautProvider())
 	// registry.Register(NewJakartaEEProvider())
 }

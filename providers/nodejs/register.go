@@ -15,5 +15,6 @@ func RegisterAll(registry *detector.Registry) {
 	registry.Register(NewSvelteKitProvider())
 	registry.Register(NewHonoProvider())
 	registry.Register(NewKoaProvider())
+	registry.Register(NewFastifyProvider())
 	registry.Register(NewExpressProvider()) // Express last as it's most generic
 }
