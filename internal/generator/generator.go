@@ -443,9 +443,9 @@ services:
     # If using non-Alpine base, replace wget with: curl -sf http://localhost:PORT/ || exit 1
     healthcheck:
 {{if eq .language "python"}}
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default \"3000\"}}/')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:{{.port | default "3000"}}/')"]
 {{else}}
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:{{.port | default \"3000\"}}/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:{{.port | default "3000"}}/"]
 {{end}}
       interval: 30s
       timeout: 10s
