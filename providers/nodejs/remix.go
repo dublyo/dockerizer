@@ -98,6 +98,9 @@ func (p *RemixProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (i
 	// Detect port
 	vars["port"] = detectPort(scan, "3000")
 
+	// Check for public directory
+	vars["hasPublicDir"] = scan.FileTree.HasDir("public")
+
 	// Cap at 100
 	if score > 100 {
 		score = 100

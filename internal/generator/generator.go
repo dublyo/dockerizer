@@ -676,7 +676,7 @@ RUN adduser --system --uid 1001 nextjs
 # Copy standalone build
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+{{if .hasPublicDir}}COPY --from=builder /app/public ./public{{end}}
 
 USER nextjs
 
@@ -694,7 +694,7 @@ CMD ["node", "server.js"]
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/public ./public
+{{if .hasPublicDir}}COPY --from=builder /app/public ./public{{end}}
 
 USER nextjs
 
@@ -2022,7 +2022,7 @@ RUN adduser --system --uid 1001 remix
 
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/build ./build
-COPY --from=builder /app/public ./public
+{{if .hasPublicDir}}COPY --from=builder /app/public ./public{{end}}
 
 {{if eq .packageManager "pnpm"}}
 RUN corepack enable && corepack prepare pnpm@latest --activate

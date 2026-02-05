@@ -105,6 +105,9 @@ func (p *NextJSProvider) Detect(ctx context.Context, scan *scanner.ScanResult) (
 		vars["startScript"] = "start"
 	}
 
+	// Check for public directory
+	vars["hasPublicDir"] = scan.FileTree.HasDir("public")
+
 	// Detect port from environment or common patterns
 	vars["port"] = detectPort(scan, "3000")
 
