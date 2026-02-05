@@ -22,13 +22,12 @@ import (
 )
 
 type detectionCase struct {
-	name            string
-	path            string
-	detected        bool
-	language        string
-	framework       string
-	expectedVars    map[string]string
-	unexpectedMatch bool
+	name         string
+	path         string
+	detected     bool
+	language     string
+	framework    string
+	expectedVars map[string]string
 }
 
 func TestDetectSampleApps(t *testing.T) {
