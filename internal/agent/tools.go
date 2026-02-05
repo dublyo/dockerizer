@@ -419,31 +419,13 @@ func (t *FileReadTool) Execute(ctx context.Context, args map[string]interface{})
 	return string(content), nil
 }
 
-// ShellTool executes shell commands with strict allowlisting
+// ShellTool executes shell commands with strict allowlisting and argument validation
 type ShellTool struct {
 	workDir string
 }
 
-// allowedShellCommands defines commands safe for dockerizer operations
-var allowedShellCommands = []string{
-	"docker",
-	"docker-compose",
-	"ls",
-	"cat",
-	"head",
-	"tail",
-	"grep",
-	"find",
-	"wc",
-	"pwd",
-	"echo",
-	"test",
-	"stat",
-	"file",
-}
-
 func (t *ShellTool) Name() string        { return "shell" }
-func (t *ShellTool) Description() string { return "Execute a shell command (allowlisted commands only)" }
+func (t *ShellTool) Description() string { return "Execute a shell command (docker/docker-compose only)" }
 
 func (t *ShellTool) Execute(ctx context.Context, args map[string]interface{}) (string, error) {
 	command, _ := args["command"].(string)
@@ -451,8 +433,8 @@ func (t *ShellTool) Execute(ctx context.Context, args map[string]interface{}) (s
 		return "", fmt.Errorf("command is required")
 	}
 
-	// Security: validate command against allowlist
-	if err := validateShellCommand(command); err != nil {
+	// Security: validate command against strict allowlist with argument checking
+	if err := t.validateShellCommand(command); err != nil {
 		return "", err
 	}
 
@@ -473,61 +455,170 @@ func (t *ShellTool) Execute(ctx context.Context, args map[string]interface{}) (s
 	return output, nil
 }
 
-// validateShellCommand checks if a command is in the allowlist
-func validateShellCommand(command string) error {
+// validateShellCommand performs strict validation of shell commands.
+// Only docker and docker-compose are allowed, with dangerous flags blocked.
+func (t *ShellTool) validateShellCommand(command string) error {
 	command = strings.TrimSpace(command)
 
-	// Block newlines and carriage returns (command separators in sh -c)
-	if strings.ContainsAny(command, "\n\r") {
-		return fmt.Errorf("newlines are not allowed in commands")
-	}
-
-	// Block redirections (could write to arbitrary files)
-	if strings.ContainsAny(command, "><") {
-		return fmt.Errorf("redirections are not allowed in commands")
-	}
-
-	// Block pipes (could chain to dangerous commands)
-	if strings.Contains(command, "|") {
-		return fmt.Errorf("pipes are not allowed in commands")
-	}
-
-	// Block dangerous patterns regardless of command
-	dangerousPatterns := []string{
-		"rm -rf /",
-		"rm -rf /*",
-		"$(",
-		"`",
-		"&&",
-		"||",
-		";",
-		"eval ",
-		"exec ",
-	}
-	for _, pattern := range dangerousPatterns {
-		if strings.Contains(command, pattern) {
-			return fmt.Errorf("dangerous pattern detected in command: %s", pattern)
+	// Block shell metacharacters and injection vectors
+	blockedChars := "\n\r><|$`;&"
+	for _, c := range blockedChars {
+		if strings.ContainsRune(command, c) {
+			return fmt.Errorf("shell metacharacter not allowed: %q", c)
 		}
 	}
 
-	// Extract the base command name
+	// Block command chaining
+	if strings.Contains(command, "&&") || strings.Contains(command, "||") {
+		return fmt.Errorf("command chaining not allowed")
+	}
+
+	// Parse command into parts
 	parts := strings.Fields(command)
 	if len(parts) == 0 {
 		return fmt.Errorf("empty command")
 	}
+
 	baseCmd := filepath.Base(parts[0])
 
-	// Check against allowlist
-	allowed := false
-	for _, cmd := range allowedShellCommands {
-		if baseCmd == cmd {
-			allowed = true
-			break
+	// Only allow docker and docker-compose
+	switch baseCmd {
+	case "docker":
+		return t.validateDockerCommand(parts[1:])
+	case "docker-compose":
+		return t.validateDockerComposeCommand(parts[1:])
+	default:
+		return fmt.Errorf("only docker and docker-compose commands are allowed, got: %s", baseCmd)
+	}
+}
+
+// validateDockerCommand checks docker command arguments for dangerous operations
+func (t *ShellTool) validateDockerCommand(args []string) error {
+	// Dangerous docker flags that could compromise the host
+	dangerousFlags := []string{
+		"--privileged",
+		"--pid=host",
+		"--network=host",
+		"--userns=host",
+		"--uts=host",
+		"--ipc=host",
+		"--cap-add",
+		"--security-opt",
+		"--device",
+	}
+
+	for _, arg := range args {
+		// Check for dangerous flags
+		for _, dangerous := range dangerousFlags {
+			if strings.HasPrefix(arg, dangerous) {
+				return fmt.Errorf("dangerous docker flag not allowed: %s", dangerous)
+			}
+		}
+
+		// Check for dangerous volume mounts (mounting host root or sensitive paths)
+		if strings.HasPrefix(arg, "-v") || strings.HasPrefix(arg, "--volume") {
+			if err := t.validateVolumeMount(arg, args); err != nil {
+				return err
+			}
+		}
+
+		// Block --mount with dangerous options
+		if strings.HasPrefix(arg, "--mount") {
+			if strings.Contains(arg, "type=bind") && strings.Contains(arg, "source=/") {
+				// Check if it's mounting something outside workDir
+				if !strings.Contains(arg, "source="+t.workDir) {
+					return fmt.Errorf("bind mounts outside working directory not allowed")
+				}
+			}
 		}
 	}
 
-	if !allowed {
-		return fmt.Errorf("command not in allowlist: %s (allowed: %v)", baseCmd, allowedShellCommands)
+	return nil
+}
+
+// validateVolumeMount checks if a -v/--volume mount is safe
+func (t *ShellTool) validateVolumeMount(arg string, args []string) error {
+	var volumeSpec string
+
+	// Handle -v=spec or -v spec formats
+	if strings.Contains(arg, "=") {
+		volumeSpec = strings.SplitN(arg, "=", 2)[1]
+	} else if arg == "-v" || arg == "--volume" {
+		// Volume spec is in the next argument - find it
+		for i, a := range args {
+			if a == arg && i+1 < len(args) {
+				volumeSpec = args[i+1]
+				break
+			}
+		}
+	} else if strings.HasPrefix(arg, "-v") {
+		volumeSpec = strings.TrimPrefix(arg, "-v")
+	}
+
+	if volumeSpec == "" {
+		return nil // No spec found, let docker handle the error
+	}
+
+	// Parse volume spec: [host-src:]container-dest[:options]
+	parts := strings.Split(volumeSpec, ":")
+	if len(parts) >= 1 {
+		hostPath := parts[0]
+
+		// Block absolute paths outside workDir
+		if filepath.IsAbs(hostPath) {
+			// Resolve the workDir to compare
+			absWorkDir, _ := filepath.Abs(t.workDir)
+			absHostPath, _ := filepath.Abs(hostPath)
+
+			if !strings.HasPrefix(absHostPath, absWorkDir) {
+				return fmt.Errorf("volume mount outside working directory not allowed: %s", hostPath)
+			}
+		}
+
+		// Block path traversal in relative paths
+		if strings.Contains(hostPath, "..") {
+			return fmt.Errorf("path traversal in volume mount not allowed")
+		}
+
+		// Block mounting root or sensitive directories
+		sensitiveRoots := []string{"/", "/etc", "/var", "/usr", "/root", "/home"}
+		for _, sensitive := range sensitiveRoots {
+			if hostPath == sensitive || strings.HasPrefix(hostPath, sensitive+"/") {
+				return fmt.Errorf("mounting sensitive host path not allowed: %s", hostPath)
+			}
+		}
+	}
+
+	return nil
+}
+
+// validateDockerComposeCommand checks docker-compose arguments
+func (t *ShellTool) validateDockerComposeCommand(args []string) error {
+	// docker-compose is generally safer since it reads from docker-compose.yml
+	// But block commands that could be dangerous
+
+	for _, arg := range args {
+		// Block exec with arbitrary commands (could run anything)
+		if arg == "exec" {
+			// Find what comes after exec to see if it's safe
+			for i, a := range args {
+				if a == "exec" && i+1 < len(args) {
+					// Allow common safe exec commands
+					nextArg := args[i+1]
+					if nextArg != "-T" && nextArg != "--no-TTY" &&
+						!strings.HasPrefix(nextArg, "-") {
+						// This is the service name, next would be the command
+						// For now, block exec entirely for safety
+						return fmt.Errorf("docker-compose exec not allowed (security restriction)")
+					}
+				}
+			}
+		}
+
+		// Block run with arbitrary commands
+		if arg == "run" {
+			return fmt.Errorf("docker-compose run not allowed (security restriction)")
+		}
 	}
 
 	return nil
