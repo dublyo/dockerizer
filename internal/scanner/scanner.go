@@ -99,6 +99,41 @@ func WithIgnoreHidden(ignore bool) Option {
 	}
 }
 
+// safeReadFileInRoot reads a file only if it resolves to a path within the given root.
+// This prevents symlink-based disclosure attacks where a malicious repo
+// could include a symlink (or intermediate directory symlink) pointing outside the repo.
+func safeReadFileInRoot(root, path string) ([]byte, error) {
+	// Resolve the root directory to get the real path
+	realRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return nil, &fs.PathError{Op: "resolve", Path: root, Err: err}
+	}
+	realRoot, _ = filepath.Abs(realRoot)
+
+	// Resolve the target file path (follows all symlinks)
+	realPath, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return nil, err
+	}
+	realPath, _ = filepath.Abs(realPath)
+
+	// Verify the resolved path is within the root
+	if !isPathWithin(realPath, realRoot) {
+		return nil, &fs.PathError{Op: "read", Path: path, Err: fs.ErrPermission}
+	}
+
+	return os.ReadFile(path)
+}
+
+// isPathWithin checks if path is within or equal to root
+func isPathWithin(path, root string) bool {
+	if !strings.HasSuffix(root, string(filepath.Separator)) {
+		root += string(filepath.Separator)
+	}
+	return path == strings.TrimSuffix(root, string(filepath.Separator)) ||
+		strings.HasPrefix(path, root)
+}
+
 // Scan implements Scanner with context cancellation support
 func (s *scanner) Scan(ctx context.Context, path string) (*ScanResult, error) {
 	// Check for cancellation before starting
@@ -254,7 +289,7 @@ func (s *scanner) extractMetadata(ctx context.Context, root string, tree *FileTr
 
 	// Parse package.json
 	if tree.HasFile("package.json") {
-		data, err := os.ReadFile(filepath.Join(root, "package.json"))
+		data, err := safeReadFileInRoot(root, filepath.Join(root, "package.json"))
 		if err == nil {
 			var pkg PackageJSON
 			if json.Unmarshal(data, &pkg) == nil {
@@ -265,7 +300,7 @@ func (s *scanner) extractMetadata(ctx context.Context, root string, tree *FileTr
 
 	// Parse go.mod
 	if tree.HasFile("go.mod") {
-		data, err := os.ReadFile(filepath.Join(root, "go.mod"))
+		data, err := safeReadFileInRoot(root, filepath.Join(root, "go.mod"))
 		if err == nil {
 			metadata.GoMod = parseGoMod(string(data))
 		}
@@ -273,7 +308,7 @@ func (s *scanner) extractMetadata(ctx context.Context, root string, tree *FileTr
 
 	// Parse requirements.txt
 	if tree.HasFile("requirements.txt") {
-		data, err := os.ReadFile(filepath.Join(root, "requirements.txt"))
+		data, err := safeReadFileInRoot(root, filepath.Join(root, "requirements.txt"))
 		if err == nil {
 			metadata.Requirements = parseRequirements(string(data))
 		}
@@ -281,7 +316,7 @@ func (s *scanner) extractMetadata(ctx context.Context, root string, tree *FileTr
 
 	// Parse pyproject.toml
 	if tree.HasFile("pyproject.toml") {
-		data, err := os.ReadFile(filepath.Join(root, "pyproject.toml"))
+		data, err := safeReadFileInRoot(root, filepath.Join(root, "pyproject.toml"))
 		if err == nil {
 			metadata.PyProject = parsePyProject(string(data))
 		}
@@ -289,7 +324,7 @@ func (s *scanner) extractMetadata(ctx context.Context, root string, tree *FileTr
 
 	// Parse Cargo.toml
 	if tree.HasFile("Cargo.toml") {
-		data, err := os.ReadFile(filepath.Join(root, "Cargo.toml"))
+		data, err := safeReadFileInRoot(root, filepath.Join(root, "Cargo.toml"))
 		if err == nil {
 			metadata.CargoToml = parseCargoToml(string(data))
 		}
@@ -297,7 +332,7 @@ func (s *scanner) extractMetadata(ctx context.Context, root string, tree *FileTr
 
 	// Parse composer.json
 	if tree.HasFile("composer.json") {
-		data, err := os.ReadFile(filepath.Join(root, "composer.json"))
+		data, err := safeReadFileInRoot(root, filepath.Join(root, "composer.json"))
 		if err == nil {
 			var composer ComposerJSON
 			if json.Unmarshal(data, &composer) == nil {
@@ -339,6 +374,13 @@ func (s *scanner) collectKeyFiles(ctx context.Context, root string, tree *FileTr
 		"Procfile",
 	}
 
+	// Resolve the root directory once for containment checks
+	realRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return nil, err
+	}
+	realRoot, _ = filepath.Abs(realRoot)
+
 	var keyFiles []KeyFile
 	for _, pattern := range keyFilePatterns {
 		select {
@@ -349,6 +391,19 @@ func (s *scanner) collectKeyFiles(ctx context.Context, root string, tree *FileTr
 
 		if tree.HasFile(pattern) {
 			fullPath := filepath.Join(root, pattern)
+
+			// Security: resolve all symlinks and verify containment
+			realPath, err := filepath.EvalSymlinks(fullPath)
+			if err != nil {
+				continue
+			}
+			realPath, _ = filepath.Abs(realPath)
+
+			// Skip if path escapes the root via symlinks
+			if !isPathWithin(realPath, realRoot) {
+				continue
+			}
+
 			info, err := os.Stat(fullPath)
 			if err != nil {
 				continue

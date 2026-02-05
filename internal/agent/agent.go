@@ -63,16 +63,21 @@ func New(cfg AgentConfig) *Agent {
 		cfg.MaxAttempts = 5
 	}
 
+	inspectors := []Inspector{
+		&SecurityInspector{},
+		&SyntaxInspector{},
+	}
+
+	tools := NewToolDispatcher(cfg.WorkDir)
+	tools.SetInspectors(inspectors)
+
 	return &Agent{
 		provider:    cfg.AIProvider,
-		tools:       NewToolDispatcher(cfg.WorkDir),
+		tools:       tools,
 		session:     NewSession(),
 		maxAttempts: cfg.MaxAttempts,
 		events:      make(chan AgentEvent, 100),
-		inspectors: []Inspector{
-			&SecurityInspector{},
-			&SyntaxInspector{},
-		},
+		inspectors:  inspectors,
 	}
 }
 

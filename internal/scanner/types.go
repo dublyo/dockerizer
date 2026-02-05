@@ -2,8 +2,10 @@
 package scanner
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // ScanResult contains all information extracted from a repository
@@ -15,10 +17,40 @@ type ScanResult struct {
 	rootPath string // For ReadFile operations
 }
 
-// ReadFile reads a file relative to the repository root
+// ReadFile reads a file relative to the repository root.
+// It resolves all symlinks and rejects paths that escape the repository root.
 func (s *ScanResult) ReadFile(path string) ([]byte, error) {
 	fullPath := filepath.Join(s.rootPath, path)
+
+	// Resolve the root directory
+	realRoot, err := filepath.EvalSymlinks(s.rootPath)
+	if err != nil {
+		return nil, &fs.PathError{Op: "resolve", Path: s.rootPath, Err: err}
+	}
+	realRoot, _ = filepath.Abs(realRoot)
+
+	// Resolve the target file (follows all symlinks in the chain)
+	realPath, err := filepath.EvalSymlinks(fullPath)
+	if err != nil {
+		return nil, err
+	}
+	realPath, _ = filepath.Abs(realPath)
+
+	// Verify the resolved path is within the root
+	if !isWithin(realPath, realRoot) {
+		return nil, &fs.PathError{Op: "read", Path: path, Err: fs.ErrPermission}
+	}
+
 	return os.ReadFile(fullPath)
+}
+
+// isWithin checks if path is within or equal to root
+func isWithin(path, root string) bool {
+	if !strings.HasSuffix(root, string(filepath.Separator)) {
+		root += string(filepath.Separator)
+	}
+	return path == strings.TrimSuffix(root, string(filepath.Separator)) ||
+		strings.HasPrefix(path, root)
 }
 
 // HasFile checks if a file exists in the scan result

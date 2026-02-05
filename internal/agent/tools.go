@@ -25,10 +25,92 @@ import (
 	"github.com/dublyo/dockerizer/providers/rust"
 )
 
+// securePath validates and resolves a path to ensure it stays within the base directory.
+// It rejects absolute paths, path traversal attempts, and symlink escapes.
+// This function resolves ALL symlinks in the path chain to prevent intermediate symlink attacks.
+func securePath(baseDir, path string) (string, error) {
+	// Reject absolute paths
+	if filepath.IsAbs(path) {
+		return "", fmt.Errorf("absolute paths are not allowed: %s", path)
+	}
+
+	// Resolve the base directory (must exist and we need its real path)
+	realBase, err := filepath.EvalSymlinks(baseDir)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve base directory: %w", err)
+	}
+	realBase, err = filepath.Abs(realBase)
+	if err != nil {
+		return "", fmt.Errorf("failed to get absolute base path: %w", err)
+	}
+
+	// Clean and join the path
+	fullPath := filepath.Join(baseDir, filepath.Clean(path))
+
+	// Try to resolve the full path (works if file exists)
+	realPath, err := filepath.EvalSymlinks(fullPath)
+	if err != nil {
+		// File doesn't exist - resolve the parent directory instead (for writes)
+		parentDir := filepath.Dir(fullPath)
+		realParent, parentErr := filepath.EvalSymlinks(parentDir)
+		if parentErr != nil {
+			// Parent doesn't exist either - walk up until we find an existing path
+			realParent, parentErr = resolveExistingParent(parentDir)
+			if parentErr != nil {
+				return "", fmt.Errorf("failed to resolve path: %w", parentErr)
+			}
+		}
+		realParent, _ = filepath.Abs(realParent)
+
+		// Verify the parent is within the base
+		if !isPathWithin(realParent, realBase) {
+			return "", fmt.Errorf("path escapes working directory via symlink: %s", path)
+		}
+
+		return fullPath, nil
+	}
+
+	// File exists - verify the resolved path is within the base
+	realPath, _ = filepath.Abs(realPath)
+	if !isPathWithin(realPath, realBase) {
+		return "", fmt.Errorf("path escapes working directory via symlink: %s", path)
+	}
+
+	return fullPath, nil
+}
+
+// resolveExistingParent walks up the directory tree until it finds an existing directory
+func resolveExistingParent(path string) (string, error) {
+	for {
+		parent := filepath.Dir(path)
+		if parent == path {
+			// Reached root
+			return filepath.EvalSymlinks(parent)
+		}
+		resolved, err := filepath.EvalSymlinks(parent)
+		if err == nil {
+			return resolved, nil
+		}
+		path = parent
+	}
+}
+
+// isPathWithin checks if path is within or equal to base (after both are resolved)
+func isPathWithin(path, base string) bool {
+	// Add trailing separator to base to prevent prefix matching issues
+	// e.g., /home/user vs /home/username
+	if !strings.HasSuffix(base, string(filepath.Separator)) {
+		base += string(filepath.Separator)
+	}
+	return path == strings.TrimSuffix(base, string(filepath.Separator)) ||
+		strings.HasPrefix(path, base)
+}
+
 // ToolDispatcher manages and executes agent tools
 type ToolDispatcher struct {
-	workDir string
-	tools   map[string]Tool
+	workDir    string
+	tools      map[string]Tool
+	inspectors []Inspector
 }
 
 // Tool represents an executable tool
@@ -66,12 +148,25 @@ func (td *ToolDispatcher) Register(tool Tool) {
 	td.tools[tool.Name()] = tool
 }
 
-// Execute runs a tool by name
+// SetInspectors configures the inspectors to run before tool execution
+func (td *ToolDispatcher) SetInspectors(inspectors []Inspector) {
+	td.inspectors = inspectors
+}
+
+// Execute runs a tool by name after validating with all inspectors
 func (td *ToolDispatcher) Execute(ctx context.Context, name string, args map[string]interface{}) (string, error) {
 	tool, ok := td.tools[name]
 	if !ok {
 		return "", fmt.Errorf("unknown tool: %s", name)
 	}
+
+	// Run all inspectors before executing the tool
+	for _, inspector := range td.inspectors {
+		if err := inspector.Inspect(ctx, name, args); err != nil {
+			return "", fmt.Errorf("inspector %s rejected tool call: %w", inspector.Name(), err)
+		}
+	}
+
 	return tool.Execute(ctx, args)
 }
 
@@ -269,7 +364,11 @@ func (t *FileWriteTool) Execute(ctx context.Context, args map[string]interface{}
 		return "", fmt.Errorf("path is required")
 	}
 
-	fullPath := filepath.Join(t.workDir, path)
+	// Security: validate path stays within workDir
+	fullPath, err := securePath(t.workDir, path)
+	if err != nil {
+		return "", err
+	}
 
 	// Create directories if needed
 	if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
@@ -297,7 +396,21 @@ func (t *FileReadTool) Execute(ctx context.Context, args map[string]interface{})
 		return "", fmt.Errorf("path is required")
 	}
 
-	fullPath := filepath.Join(t.workDir, path)
+	// Security: validate path stays within workDir
+	fullPath, err := securePath(t.workDir, path)
+	if err != nil {
+		return "", err
+	}
+
+	// Security: check for symlinks to prevent disclosure
+	info, err := os.Lstat(fullPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to stat file: %w", err)
+	}
+	if info.Mode()&os.ModeSymlink != 0 {
+		return "", fmt.Errorf("symlinks are not allowed: %s", path)
+	}
+
 	content, err := os.ReadFile(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to read file: %w", err)
@@ -306,18 +419,41 @@ func (t *FileReadTool) Execute(ctx context.Context, args map[string]interface{})
 	return string(content), nil
 }
 
-// ShellTool executes shell commands
+// ShellTool executes shell commands with strict allowlisting
 type ShellTool struct {
 	workDir string
 }
 
+// allowedShellCommands defines commands safe for dockerizer operations
+var allowedShellCommands = []string{
+	"docker",
+	"docker-compose",
+	"ls",
+	"cat",
+	"head",
+	"tail",
+	"grep",
+	"find",
+	"wc",
+	"pwd",
+	"echo",
+	"test",
+	"stat",
+	"file",
+}
+
 func (t *ShellTool) Name() string        { return "shell" }
-func (t *ShellTool) Description() string { return "Execute a shell command" }
+func (t *ShellTool) Description() string { return "Execute a shell command (allowlisted commands only)" }
 
 func (t *ShellTool) Execute(ctx context.Context, args map[string]interface{}) (string, error) {
 	command, _ := args["command"].(string)
 	if command == "" {
 		return "", fmt.Errorf("command is required")
+	}
+
+	// Security: validate command against allowlist
+	if err := validateShellCommand(command); err != nil {
+		return "", err
 	}
 
 	cmd := exec.CommandContext(ctx, "sh", "-c", command)
@@ -335,6 +471,66 @@ func (t *ShellTool) Execute(ctx context.Context, args map[string]interface{}) (s
 	}
 
 	return output, nil
+}
+
+// validateShellCommand checks if a command is in the allowlist
+func validateShellCommand(command string) error {
+	command = strings.TrimSpace(command)
+
+	// Block newlines and carriage returns (command separators in sh -c)
+	if strings.ContainsAny(command, "\n\r") {
+		return fmt.Errorf("newlines are not allowed in commands")
+	}
+
+	// Block redirections (could write to arbitrary files)
+	if strings.ContainsAny(command, "><") {
+		return fmt.Errorf("redirections are not allowed in commands")
+	}
+
+	// Block pipes (could chain to dangerous commands)
+	if strings.Contains(command, "|") {
+		return fmt.Errorf("pipes are not allowed in commands")
+	}
+
+	// Block dangerous patterns regardless of command
+	dangerousPatterns := []string{
+		"rm -rf /",
+		"rm -rf /*",
+		"$(",
+		"`",
+		"&&",
+		"||",
+		";",
+		"eval ",
+		"exec ",
+	}
+	for _, pattern := range dangerousPatterns {
+		if strings.Contains(command, pattern) {
+			return fmt.Errorf("dangerous pattern detected in command: %s", pattern)
+		}
+	}
+
+	// Extract the base command name
+	parts := strings.Fields(command)
+	if len(parts) == 0 {
+		return fmt.Errorf("empty command")
+	}
+	baseCmd := filepath.Base(parts[0])
+
+	// Check against allowlist
+	allowed := false
+	for _, cmd := range allowedShellCommands {
+		if baseCmd == cmd {
+			allowed = true
+			break
+		}
+	}
+
+	if !allowed {
+		return fmt.Errorf("command not in allowlist: %s (allowed: %v)", baseCmd, allowedShellCommands)
+	}
+
+	return nil
 }
 
 // DockrizerAnalyzeTool analyzes a repository to detect its stack
